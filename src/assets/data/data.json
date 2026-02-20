@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "title": "Fast Delivery",
+    "description": "We ensure your parcels reach on time with express delivery options for all major cities.",
+    "image": "https://blog.tubikstudio.com/wp-content/uploads/2018/02/illustration_design_in_progress_tubik.png"
+  },
+  {
+    "id": 2,
+    "title": "Nationwide Shipping",
+    "description": "Ship anywhere in the country with confidence. Our logistics partners cover all districts efficiently.",
+    "image": "https://unblast.com/wp-content/uploads/2020/03/Designer-Using-Microsoft-Surface-Studio-Illustration-1.jpg"
+  },
+  {
+    "id": 3,
+    "title": "Secure Packaging",
+    "description": "All items are carefully packaged to prevent damage during transit. Safety is our priority.",
+    "image": "https://miro.medium.com/0*G_W4PEC6F5eZePDU.jpg"
+  },
+  {
+    "id": 4,
+    "title": "Real-time Tracking",
+    "description": "Monitor your shipments with real-time updates so you always know the status of your deliveries.",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQuxJskiYQAPKC7pGTbl58LcIBqj4zHmZ516g&s"
+  }
+]

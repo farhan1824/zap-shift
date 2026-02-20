@@ -1,0 +1,62 @@
+[
+  {
+    "name": "Ayesha Rahman",
+    "designation": "Small Business Owner",
+    "imageUrl": "https://randomuser.me/api/portraits/women/45.jpg",
+    "review": "This product has completely changed the way I manage my business. The quality and support are outstanding."
+  },
+  {
+    "name": "Daniel Smith",
+    "designation": "Marketing Manager",
+    "imageUrl": "https://randomuser.me/api/portraits/men/32.jpg",
+    "review": "Very easy to use and extremely effective. It helped our team improve productivity within days."
+  },
+  {
+    "name": "Nusrat Jahan",
+    "designation": "E-commerce Entrepreneur",
+    "imageUrl": "https://randomuser.me/api/portraits/women/68.jpg",
+    "review": "I was impressed by how smooth everything works. Definitely worth the investment."
+  },
+  {
+    "name": "Michael Brown",
+    "designation": "Freelance Designer",
+    "imageUrl": "https://randomuser.me/api/portraits/men/75.jpg",
+    "review": "The design and performance are top-notch. It fits perfectly into my daily workflow."
+  },
+  {
+    "name": "Rafi Hasan",
+    "designation": "Startup Founder",
+    "imageUrl": "https://randomuser.me/api/portraits/men/41.jpg",
+    "review": "Reliable, fast, and user-friendly. This product has become an essential part of our startup."
+  },
+  {
+    "name": "Sophia Williams",
+    "designation": "Product Manager",
+    "imageUrl": "https://randomuser.me/api/portraits/women/22.jpg",
+    "review": "I appreciate the attention to detail and thoughtful features. It truly solves real problems."
+  },
+  {
+    "name": "Tanvir Ahmed",
+    "designation": "Operations Executive",
+    "imageUrl": "https://randomuser.me/api/portraits/men/19.jpg",
+    "review": "Everything works exactly as promised. The onboarding process was simple and clear."
+  },
+  {
+    "name": "Emily Johnson",
+    "designation": "Content Creator",
+    "imageUrl": "https://randomuser.me/api/portraits/women/57.jpg",
+    "review": "I love how intuitive it is. It saves me a lot of time and effort every single day."
+  },
+  {
+    "name": "Arif Khan",
+    "designation": "Logistics Manager",
+    "imageUrl": "https://randomuser.me/api/portraits/men/64.jpg",
+    "review": "The performance has been consistent and dependable. Customer support is also very responsive."
+  },
+  {
+    "name": "Laura Martinez",
+    "designation": "Business Consultant",
+    "imageUrl": "https://randomuser.me/api/portraits/women/34.jpg",
+    "review": "A well-built product with great value. I confidently recommend it to my clients."
+  }
+]
