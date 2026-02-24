@@ -9,6 +9,15 @@
     font-style: normal;
 }
 
+.swiper-button-prev,
+.swiper-button-next {
+    color: #0b8d9c !important
+}
+
+.swiper-pagination-bullet-active {
+    background: #0ba5b7 !important
+}
+
 /* * {
     background-color: white;
     color: black;

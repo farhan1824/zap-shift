@@ -18,7 +18,11 @@ const Header = () => {
                         <ul
                             tabIndex="-1"
                             className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
-                            <li><a>Item 1</a></li>
+                            <li><a>Services</a></li>
+                            <li><a>Coverage</a></li>
+                            <li><a>About Us</a></li>
+                            <li><a>Pricing</a></li>
+                            <li><a>Be a Rider</a></li>
                             <li>
                                 <a>Parent</a>
                                 <ul className="p-2">
@@ -34,7 +38,11 @@ const Header = () => {
                 </div>
                 <div className="navbar-center hidden lg:flex">
                     <ul className="menu menu-horizontal px-1">
-                        <li><a>Item 1</a></li>
+                        <li><a>Services</a></li>
+                        <li><a>Coverage</a></li>
+                        <li><a>About Us</a></li>
+                        <li><a>Pricing</a></li>
+                        <li><a>Be a Rider</a></li>
                         <li>
                             <details>
                                 <summary>Parent</summary>
@@ -51,7 +59,13 @@ const Header = () => {
                     </ul>
                 </div>
                 <div className="navbar-end">
-                    <a className="btn">Button</a>
+                    <NavLink to="/signin"
+                        className="btn btn-outline px-8 py-4 rounded-full border-gray-500 text-white hover:text-black hover:bg-[#CAEB66] "
+                    >
+                        Sign in
+                    </NavLink>
+                    <a className="btn bg-[#CAEB66] px-8 py-4 rounded-full text-black">Be a Rider</a>
+
                 </div>
             </div>
         </div>
