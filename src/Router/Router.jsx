@@ -7,6 +7,7 @@ import Signin from "../Layout/Sigin/Signin";
 import Register from "../Layout/Sigin/Register";
 import Rider from "../Layout/Rider/Rider";
 import { Pricing } from "../Layout/Pricing/Pricing";
+import AboutUs from "../Layout/AboutUs/AboutUs";
 export const router = createBrowserRouter([
     {
         path: "/",
@@ -24,6 +25,11 @@ export const router = createBrowserRouter([
             {
                 path: "/price",
                 Component: Pricing
+            }
+            ,
+            {
+                path: "/about-us",
+                Component: AboutUs
             }
         ]
     },
