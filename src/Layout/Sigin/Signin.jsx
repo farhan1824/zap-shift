@@ -1,28 +1,47 @@
 import React from "react";
+import { useForm } from "react-hook-form";
 
 const Signin = () => {
+    const {
+        register,
+        handleSubmit,
+        watch,
+        formState: { errors },
+    } = useForm()
+
+    const handellogin = (data) => {
+        console.log(data);
+        // optional: clear form after submit
+        // reset();
+    };
+
     return (
         <div className="w-full max-w-md text-black">
             {/* FORM */}
-            <form className="w-full">
-                <h2 className="text-5xl font-bold mb-8">
-                    Welcome Back
-                </h2>
+            <form className="w-full" onSubmit={handleSubmit(handellogin)}>
+                <h2 className="text-5xl font-bold mb-8">Welcome Back</h2>
 
                 {/* Email */}
                 <div className="relative mb-6">
                     <input
                         type="email"
                         id="email"
-                        required
-                        className="peer w-full border border-gray-300 rounded-md px-3 pt-5 pb-2 focus:outline-none focus:border-black"
+                        placeholder=" "
+                        {...register("email", { required: true })}
+                        className="peer w-full border border-gray-300 rounded-md px-3 pt-5 pb-2
+                       focus:outline-none focus:border-black bg-[#EAECED]"
                     />
+                    {
+                        errors.email?.type === "required" && <p className="text-red-700"> Please Enter Your Email </p>
+                    }
                     <label
                         htmlFor="email"
-                        className="absolute left-3 top-3 text-gray-500 text-sm transition-all
-              peer-focus:-top-2 peer-focus:text-xs peer-focus:text-black
-              peer-valid:-top-2 peer-valid:text-xs
-              bg-[#EAECED] px-1"
+                        className="absolute left-3 px-1 text-gray-500 transition-all
+                       top-3 text-sm
+                       peer-focus:-top-2 peer-focus:text-xs peer-focus:text-black
+                       peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm
+                       peer-not-placeholder-shown:-top-2 peer-not-placeholder-shown:text-xs
+                       bg-[#EAECED]"
                     >
                         Email
                     </label>
@@ -33,15 +52,26 @@ const Signin = () => {
                     <input
                         type="password"
                         id="password"
-                        required
-                        className="peer w-full border border-gray-300 rounded-md px-3 pt-5 pb-2 focus:outline-none focus:border-black"
+                        placeholder=" "
+                        {...register("password", { required: true, minLength: 6 })}
+                        className="peer w-full border border-gray-300 rounded-md px-3 pt-5 pb-2
+                       focus:outline-none focus:border-black bg-[#EAECED]"
+
                     />
+                    {
+                        errors.password?.type === "required" && <p className="text-red-700"> Password Is Required </p>
+                    }
+                    {
+                        errors.password?.type === "minLength" && <p className="text-red-700"> Password Must be 6 Character or Longer </p>
+                    }
                     <label
                         htmlFor="password"
-                        className="absolute left-3 top-3 text-gray-500 text-sm transition-all
-              peer-focus:-top-2 peer-focus:text-xs peer-focus:text-black
-              peer-valid:-top-2 peer-valid:text-xs
-              bg-[#EAECED] px-1"
+                        className="absolute left-3 px-1 text-gray-500 transition-all
+                       top-3 text-sm
+                       peer-focus:-top-2 peer-focus:text-xs peer-focus:text-black
+                       peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm
+                       peer-not-placeholder-shown:-top-2 peer-not-placeholder-shown:text-xs
+                       bg-[#EAECED]"
                     >
                         Password
                     </label>
@@ -60,7 +90,8 @@ const Signin = () => {
                 {/* Login Button */}
                 <button
                     type="submit"
-                    className="w-full bg-[#CAEB66] text-black py-3 rounded-md hover:bg-[#94bb1e] transition"
+                    className="w-full bg-[#CAEB66] text-black py-3 rounded-md
+                     hover:bg-[#94bb1e] transition"
                 >
                     Login
                 </button>
@@ -82,7 +113,9 @@ const Signin = () => {
             </div>
 
             {/* Google Login */}
-            <button className="w-full border bg-white border-gray-300 py-3 rounded-md flex items-center justify-center gap-2 hover:bg-gray-50 transition">
+            <button className="w-full border bg-white border-gray-300 py-3 rounded-md
+                         flex items-center justify-center gap-2
+                         hover:bg-gray-50 transition">
                 <img
                     src="https://www.svgrepo.com/show/475656/google-color.svg"
                     alt="Google"

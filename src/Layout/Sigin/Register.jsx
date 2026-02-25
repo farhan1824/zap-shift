@@ -1,8 +1,10 @@
 import React, { useState } from 'react'
-
+import { useForm } from "react-hook-form";
+import UseAuth from '../../Hooks/UseAuth';
+import Swal from 'sweetalert2';
 const Register = () => {
     const [image, setImage] = useState(null)
-
+    const { createUser } = UseAuth();
     const handleImageChange = (e) => {
         const file = e.target.files[0]
         if (file) {
@@ -10,10 +12,35 @@ const Register = () => {
         }
     }
 
+    const {
+        register,
+        handleSubmit,
+        watch,
+        reset,
+        formState: { errors },
+    } = useForm()
+
+    const handelregister = (data) => {
+        createUser(data.email, data.password)
+            .then((user) => {
+                console.log(user);
+                if (user) {
+                    Swal.fire({
+                        title: "Login Successfully",
+                        icon: "success",
+                        draggable: true
+                    });
+                }
+                reset()
+            })
+            .catch((error) => {
+                alert("❌ Signup failed: " + error.message);
+            });
+    };
     return (
         <div className="w-full max-w-md text-black">
-            <form className="w-full">
-                
+            <form className="w-full" onSubmit={handleSubmit(handelregister)}>
+
                 {/* Profile Image Upload */}
                 <div className="flex mb-6">
                     <label className="relative cursor-pointer">
@@ -75,20 +102,27 @@ const Register = () => {
                 </h2>
                 <p className='text-base mb-8'>Register with ZapShift</p>
 
-                {/* Name */}
+                {/* Email */}
                 <div className="relative mb-6">
                     <input
-                        type="text"
+                        type="name"
                         id="name"
-                        required
-                        className="peer w-full border border-gray-300 rounded-md px-3 pt-5 pb-2 focus:outline-none focus:border-black"
+                        placeholder=" "
+                        {...register("name", { required: true })}
+                        className="peer w-full border border-gray-300 rounded-md px-3 pt-5 pb-2
+                       focus:outline-none focus:border-black bg-[#EAECED]"
                     />
+                    {
+                        errors.name?.type === "required" && <p className="text-red-700"> Please Enter Your name </p>
+                    }
                     <label
                         htmlFor="name"
-                        className="absolute left-3 top-3 text-gray-500 text-sm transition-all
-                        peer-focus:-top-2 peer-focus:text-xs peer-focus:text-black
-                        peer-valid:-top-2 peer-valid:text-xs
-                        bg-[#EAECED] px-1"
+                        className="absolute left-3 px-1 text-gray-500 transition-all
+                       top-3 text-sm
+                       peer-focus:-top-2 peer-focus:text-xs peer-focus:text-black
+                       peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm
+                       peer-not-placeholder-shown:-top-2 peer-not-placeholder-shown:text-xs
+                       bg-[#EAECED]"
                     >
                         Name
                     </label>
@@ -99,15 +133,22 @@ const Register = () => {
                     <input
                         type="email"
                         id="email"
-                        required
-                        className="peer w-full border border-gray-300 rounded-md px-3 pt-5 pb-2 focus:outline-none focus:border-black"
+                        placeholder=" "
+                        {...register("email", { required: true })}
+                        className="peer w-full border border-gray-300 rounded-md px-3 pt-5 pb-2
+                       focus:outline-none focus:border-black bg-[#EAECED]"
                     />
+                    {
+                        errors.email?.type === "required" && <p className="text-red-700"> Please Enter Your Email </p>
+                    }
                     <label
                         htmlFor="email"
-                        className="absolute left-3 top-3 text-gray-500 text-sm transition-all
-                        peer-focus:-top-2 peer-focus:text-xs peer-focus:text-black
-                        peer-valid:-top-2 peer-valid:text-xs
-                        bg-[#EAECED] px-1"
+                        className="absolute left-3 px-1 text-gray-500 transition-all
+                       top-3 text-sm
+                       peer-focus:-top-2 peer-focus:text-xs peer-focus:text-black
+                       peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm
+                       peer-not-placeholder-shown:-top-2 peer-not-placeholder-shown:text-xs
+                       bg-[#EAECED]"
                     >
                         Email
                     </label>
@@ -118,15 +159,26 @@ const Register = () => {
                     <input
                         type="password"
                         id="password"
-                        required
-                        className="peer w-full border border-gray-300 rounded-md px-3 pt-5 pb-2 focus:outline-none focus:border-black"
+                        placeholder=" "
+                        {...register("password", { required: true, minLength: 6 })}
+                        className="peer w-full border border-gray-300 rounded-md px-3 pt-5 pb-2
+                       focus:outline-none focus:border-black bg-[#EAECED]"
+
                     />
+                    {
+                        errors.password?.type === "required" && <p className="text-red-700"> Password Is Required </p>
+                    }
+                    {
+                        errors.password?.type === "minLength" && <p className="text-red-700"> Password Must be 6 Character or Longer </p>
+                    }
                     <label
                         htmlFor="password"
-                        className="absolute left-3 top-3 text-gray-500 text-sm transition-all
-                        peer-focus:-top-2 peer-focus:text-xs peer-focus:text-black
-                        peer-valid:-top-2 peer-valid:text-xs
-                        bg-[#EAECED] px-1"
+                        className="absolute left-3 px-1 text-gray-500 transition-all
+                       top-3 text-sm
+                       peer-focus:-top-2 peer-focus:text-xs peer-focus:text-black
+                       peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm
+                       peer-not-placeholder-shown:-top-2 peer-not-placeholder-shown:text-xs
+                       bg-[#EAECED]"
                     >
                         Password
                     </label>
