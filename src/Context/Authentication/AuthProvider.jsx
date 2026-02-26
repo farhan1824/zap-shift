@@ -1,66 +1,47 @@
 import { AuthCotext } from './AuthCotext'
 import {
     createUserWithEmailAndPassword,
+    GoogleAuthProvider,
     onAuthStateChanged,
     signInWithEmailAndPassword,
+    signInWithPopup,
     signOut
 } from 'firebase/auth'
 import { auth } from '../../Firebase/Firebase.init'
 import { useEffect, useState } from 'react'
 
+const googleProvider = new GoogleAuthProvider()
+
 const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null)
     const [loading, setLoading] = useState(true)
 
-    const createUser = async (email, password) => {
+    const createUser = (email, password) => {
         setLoading(true)
-        try {
-            const userCredential = await createUserWithEmailAndPassword(
-                auth,
-                email,
-                password
-            )
-            // console.log(userCredential);
-            return userCredential.user
-        } catch (error) {
-            console.error(error.message)
-            throw error
-        } finally {
-            setLoading(false)
-        }
+        return createUserWithEmailAndPassword(auth, email, password)
     }
 
-    const signInUser = async (email, password) => {
+    const signInUser = (email, password) => {
         setLoading(true)
-        try {
-            const userCredential = await signInWithEmailAndPassword(
-                auth,
-                email,
-                password
-            )
-            // console.log(userCredential);
-            return userCredential.user
-        } catch (error) {
-            console.error(error.message)
-            throw error
-        } finally {
-            setLoading(false)
-        }
+        return signInWithEmailAndPassword(auth, email, password)
     }
 
-    const logout = async () => {
+    const signinwithGoogle = () => {
         setLoading(true)
-        await signOut(auth)
-        setLoading(false)
+        return signInWithPopup(auth, googleProvider)
+    }
+
+    const logout = () => {
+        setLoading(true)
+        return signOut(auth)
     }
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, currentUser => {
+            console.log(currentUser);
             setUser(currentUser)
             setLoading(false)
-            console.log(currentUser);
         })
-
         return unsubscribe
     }, [])
 
@@ -69,13 +50,14 @@ const AuthProvider = ({ children }) => {
         loading,
         createUser,
         signInUser,
+        signinwithGoogle,
         logout
     }
 
     return (
-        <AuthCotext value={authinfo}>
+        <AuthCotext.Provider value={authinfo}>
             {children}
-        </AuthCotext>
+        </AuthCotext.Provider>
     )
 }
 

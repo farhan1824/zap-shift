@@ -1,10 +1,14 @@
-import React, { useState } from 'react'
+import React, { use, useState } from 'react'
 import { useForm } from "react-hook-form";
 import UseAuth from '../../Hooks/UseAuth';
 import Swal from 'sweetalert2';
+import { Link, useNavigate } from 'react-router';
+import SigninwithGoogle from './SigninwithGoogle';
+import { AuthCotext } from '../../Context/Authentication/AuthCotext';
 const Register = () => {
     const [image, setImage] = useState(null)
-    const { createUser } = UseAuth();
+    const { createUser } = use(AuthCotext)
+    const nav = useNavigate()
     const handleImageChange = (e) => {
         const file = e.target.files[0]
         if (file) {
@@ -26,10 +30,11 @@ const Register = () => {
                 console.log(user);
                 if (user) {
                     Swal.fire({
-                        title: "Login Successfully",
+                        title: "Register Successfully",
                         icon: "success",
                         draggable: true
                     });
+                    nav("/")
                 }
                 reset()
             })
@@ -190,8 +195,15 @@ const Register = () => {
                 >
                     Register
                 </button>
-
+                {/* Login */}
+                <p className="text-sm mt-6 text-gray-600">
+                    Already Have An Account?{" "}
+                    <Link to="/signin" className="text-black font-medium hover:underline">
+                        login
+                    </Link>
+                </p>
             </form>
+            <SigninwithGoogle></SigninwithGoogle>
         </div>
     )
 }

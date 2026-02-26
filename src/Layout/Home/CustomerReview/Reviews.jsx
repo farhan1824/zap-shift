@@ -1,7 +1,7 @@
 import React from 'react'
 import quote from "../../../assets/reviewQuote.png"
 export const Reviews = ({ name, designation, image, review }) => {
-    console.log(name, designation, image, review);
+    // console.log(name, designation, image, review);
     return (
         <div><div className="bg-white rounded-2xl shadow-lg p-6 w-80">
             {/* Quotation Icon */}

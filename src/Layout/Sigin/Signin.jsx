@@ -1,7 +1,14 @@
-import React from "react";
+import React, { use } from "react";
 import { useForm } from "react-hook-form";
+import { Link, useNavigate } from "react-router";
+import SigninwithGoogle from "./SigninwithGoogle";
+import { AuthCotext } from "../../Context/Authentication/AuthCotext";
+import Swal from "sweetalert2";
 
 const Signin = () => {
+    const { signInUser, user } = use(AuthCotext)
+    console.log(user);
+    const nav = useNavigate()
     const {
         register,
         handleSubmit,
@@ -11,8 +18,21 @@ const Signin = () => {
 
     const handellogin = (data) => {
         console.log(data);
-        // optional: clear form after submit
-        // reset();
+        signInUser(data.email, data.password)
+            .then((result) => {
+                console.log(result);
+                if (result) {
+                    Swal.fire({
+                        title: "Login Successfully",
+                        icon: "success",
+                        draggable: true
+                    });
+                    nav("/")
+                }
+            })
+            .then((error) => {
+                console.log(error);
+            })
     };
 
     return (
@@ -99,30 +119,12 @@ const Signin = () => {
                 {/* Register */}
                 <p className="text-sm mt-6 text-gray-600">
                     Don’t have an account?{" "}
-                    <a href="register" className="text-black font-medium hover:underline">
+                    <Link to="/register" className="text-black font-medium hover:underline">
                         Register
-                    </a>
+                    </Link>
                 </p>
             </form>
-
-            {/* Divider */}
-            <div className="flex items-center my-8">
-                <div className="grow h-px bg-gray-300" />
-                <span className="px-4 text-sm text-gray-500">OR</span>
-                <div className="grow h-px bg-gray-300" />
-            </div>
-
-            {/* Google Login */}
-            <button className="w-full border bg-white border-gray-300 py-3 rounded-md
-                         flex items-center justify-center gap-2
-                         hover:bg-gray-50 transition">
-                <img
-                    src="https://www.svgrepo.com/show/475656/google-color.svg"
-                    alt="Google"
-                    className="w-5 h-5"
-                />
-                Login with Google
-            </button>
+            <SigninwithGoogle></SigninwithGoogle>
         </div>
     );
 };
