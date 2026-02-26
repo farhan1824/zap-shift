@@ -1,11 +1,10 @@
 import React from "react";
 import HorizontalCard from "./HorizontalCard";
-import data from "../../../assets/data/data.json";
 
-const CardList = () => {
+const CardList = ({ cardlistdata }) => {
     return (
         <div className="space-y-5 p-6">
-            {data.map((item) => (
+            {cardlistdata.map((item) => (
                 <HorizontalCard
                     key={item.id}
                     title={item.title}

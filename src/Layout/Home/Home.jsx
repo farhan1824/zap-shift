@@ -6,32 +6,34 @@ import LogoCarousel from '../../Components/Logo/LogoCoracual'
 import CardList from './HorizontalCard/CardList'
 import { Marchent } from './Merchent/Marchent'
 import { CutomerReview } from './CustomerReview/CutomerReview'
+import { useLoaderData } from 'react-router'
 
 const Home = () => {
+  const { customerservice, cardlistdata, services } = useLoaderData()
   return (
     <div className=''>
       <Coracual />
       <div className=''>
         <p className='text-2xl text-black' >How It Works</p>
-        <CardContainer />
+        <CardContainer services={services} />
       </div>
       <section className='text-center rounded-xl bg-[#03373d]'>
         <div className='p-10'>
           <h1 className='text-4xl'> Our Services </h1>
-          <ServiceContainer />
+          <ServiceContainer services={services} />
         </div>
       </section>
       <section>
         <LogoCarousel />
       </section>
       <section>
-        <CardList />
+        <CardList cardlistdata={cardlistdata} />
       </section>
       <section>
         <Marchent />
       </section>
       <section className='py-9 '>
-        <CutomerReview />
+        <CutomerReview customerservice={customerservice} />
       </section>
     </div>
   )

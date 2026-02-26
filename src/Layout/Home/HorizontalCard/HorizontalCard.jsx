@@ -3,7 +3,7 @@ const HorizontalCard = ({ title, description, image }) => {
         <div className="flex flex-col sm:flex-row items-stretch rounded-lg overflow-hidden bg-white text-black">
 
             {/* Left Image */}
-            <div className="flex-shrink-0">
+            <div className="shrink-0">
                 <img
                     src={image}
                     alt={title}

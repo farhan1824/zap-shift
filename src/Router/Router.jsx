@@ -8,6 +8,7 @@ import Register from "../Layout/Sigin/Register";
 import Rider from "../Layout/Rider/Rider";
 import { Pricing } from "../Layout/Pricing/Pricing";
 import AboutUs from "../Layout/AboutUs/AboutUs";
+import WarehouseMap from "../Layout/Coverage/WarehouseMap";
 export const router = createBrowserRouter([
     {
         path: "/",
@@ -16,11 +17,29 @@ export const router = createBrowserRouter([
             {
                 index: true,
                 path: "/",
-                Component: Home
+                Component: Home,
+                loader: async () => {
+                    const [customerRes, cardListRes, servicesres] = await Promise.all([
+                        fetch("./CustomerReview.json"),
+                        fetch("./data.json"),
+                        fetch("./services.json")
+                    ]);
+
+                    const customerservice = await customerRes.json();
+                    const cardlistdata = await cardListRes.json();
+                    const services = await servicesres.json();
+
+                    return { customerservice, cardlistdata, services };
+                }
             },
             {
                 path: "/rider",
                 Component: Rider
+            },
+            {
+                path: "/coverage",
+                Component: WarehouseMap,
+                loader: () => fetch("./warehouses.json")
             },
             {
                 path: "/price",

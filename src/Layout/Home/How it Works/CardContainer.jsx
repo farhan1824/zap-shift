@@ -1,10 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
-import packetData from "../../../assets/data/services.json";
 import Card from "./Card";
 
-const CardContainer = () => {
+const CardContainer = ({ services }) => {
     const trackRef = useRef(null);
-    const [cards, setCards] = useState(packetData);
+    const [cards, setCards] = useState(services);
     const cardWidth = 280;
     const duration = 700;
     const delay = 3000;

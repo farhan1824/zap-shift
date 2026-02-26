@@ -1,5 +1,4 @@
 import customerReview from "../../../assets/customer-top.png"
-import data from "../../../assets/data/CustomerReview.json";
 import { Reviews } from './Reviews';
 
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -8,7 +7,8 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 
-export const CutomerReview = () => {
+export const CutomerReview = ({ customerservice }) => {
+    // console.log(customerservice);
     return (
         <div className="flex flex-col gap-6 items-center justify-center text-center text-black">
             <img src={customerReview} alt="" />
@@ -34,7 +34,7 @@ export const CutomerReview = () => {
                     pagination={{ clickable: true }}
                     className="max-w-6xl"
                 >
-                    {data.map((item) => (
+                    {customerservice.map((item) => (
                         <SwiperSlide key={item.id}>
                             {({ isActive }) => (
                                 <div
