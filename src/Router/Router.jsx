@@ -8,7 +8,7 @@ import Register from "../Layout/Sigin/Register";
 import Rider from "../Layout/Rider/Rider";
 import { Pricing } from "../Layout/Pricing/Pricing";
 import AboutUs from "../Layout/AboutUs/AboutUs";
-import WarehouseMap from "../Layout/Coverage/WarehouseMap";
+import { Coverage } from "../Layout/Coverage/Coverage";
 export const router = createBrowserRouter([
     {
         path: "/",
@@ -38,7 +38,7 @@ export const router = createBrowserRouter([
             },
             {
                 path: "/coverage",
-                Component: WarehouseMap,
+                Component: Coverage,
                 loader: () => fetch("./warehouses.json")
             },
             {
