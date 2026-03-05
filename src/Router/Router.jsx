@@ -9,6 +9,7 @@ import Rider from "../Layout/Rider/Rider";
 import { Pricing } from "../Layout/Pricing/Pricing";
 import AboutUs from "../Layout/AboutUs/AboutUs";
 import { Coverage } from "../Layout/Coverage/Coverage";
+import ParcelOrder from "../Layout/ParcelOrder/ParcelOrder";
 export const router = createBrowserRouter([
     {
         path: "/",
@@ -44,6 +45,11 @@ export const router = createBrowserRouter([
             {
                 path: "/price",
                 Component: Pricing
+            },
+            {
+                path: "/parcel-order",
+                Component: ParcelOrder,
+                 loader: () => fetch("./warehouses.json")
             }
             ,
             {
