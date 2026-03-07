@@ -1,10 +1,12 @@
-import React from "react";
+import React, { use } from "react";
 import { useLoaderData } from "react-router";
 import { useForm } from "react-hook-form";
 import Swal from "sweetalert2";
+import { AuthCotext } from "../../Context/Authentication/AuthCotext";
 
 const ParcelOrder = () => {
     const centers = useLoaderData();
+    const { user } = use(AuthCotext)
 
     const { register, handleSubmit, watch, reset, setValue } = useForm();
 
@@ -31,13 +33,8 @@ const ParcelOrder = () => {
             centers.filter((c) => c.region === receiverRegion).map((c) => c.city)
         ),
     ];
-
-    // service centers based on city
-    const senderCenters = centers.filter((c) => c.city === senderCity);
-    const receiverCenters = centers.filter((c) => c.city === receiverCity);
-
     const calculateCost = (data) => {
-        const weight = Number(data.weight || 0);
+        const weight = data.type === "document" ? 0 : Number(data.weight || 0);
 
         let baseCost = 0;
         let weightCost = 0;
@@ -45,7 +42,7 @@ const ParcelOrder = () => {
         let outsideCharge = 0;
 
         const outsideCity =
-            data.senderServiceCenter !== data.receiverServiceCenter;
+            data.senderCity !== data.receiverCity;
 
         if (data.type === "document") {
             baseCost = outsideCity ? 80 : 60;
@@ -76,7 +73,16 @@ const ParcelOrder = () => {
             weight,
         };
     };
+    const generateTrackingId = () => {
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        let randomPart = "";
 
+        for (let i = 0; i < 14; i++) {
+            randomPart += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+
+        return `zap${randomPart}`;
+    };
     const onSubmit = (data) => {
         console.log(data)
         const cost = calculateCost(data);
@@ -84,37 +90,37 @@ const ParcelOrder = () => {
         Swal.fire({
             title: "Delivery Cost Breakdown",
             html: `
-  <div style="text-align:left">
+     <div style="text-align:left">
 
-  <p><b>Parcel Type:</b> ${data.type}</p>
-  <p><b>Total Weight:</b> ${cost.weight || "N/A"} kg</p>
+     <p><b>Parcel Type:</b> ${data.type}</p>
+     <p><b>Total Weight:</b> ${cost.weight || "N/A"} kg</p>
 
-  <hr/>
+     <hr/>
 
-  <p><b>Base Cost:</b> ৳${cost.baseCost}</p>
+     <p><b>Base Cost:</b> ৳${cost.baseCost}</p>
 
-  ${cost.weightCost
+     ${cost.weightCost
                     ? `
-      <p><b>Extra Weight Charge</b></p>
-      <p>
-      (Weight - 3kg) × ৳40<br/>
-      (${cost.weight}kg - 3kg) × 40 = ৳${cost.weightCost}
-      </p>
-      `
+         <p><b>Extra Weight Charge</b></p>
+         <p>
+         (Weight - 3kg) × ৳40<br/>
+         (${cost.weight}kg - 3kg) × 40 = ৳${cost.weightCost}
+         </p>
+         `
                     : ""
                 }
 
-  ${cost.outsideCharge
+     ${cost.outsideCharge
                     ? `<p><b>Outside District Extra Charge:</b> ৳${cost.outsideCharge}</p>`
                     : ""
                 }
 
-  <hr/>
+     <hr/>
 
-  <h3>Total Delivery Cost: ৳${cost.total}</h3>
+     <h3>Total Delivery Cost: ৳${cost.total}</h3>
 
-  </div>
-  `,
+     </div>
+     `,
             icon: "info",
             showCancelButton: true,
             confirmButtonText: "Confirm Order",
@@ -122,8 +128,10 @@ const ParcelOrder = () => {
             if (result.isConfirmed) {
                 const parcelData = {
                     ...data,
+                    tracking_id: generateTrackingId(),
                     delivery_cost: cost.total,
-                    creation_date: new Date(),
+                    created_by: user.email,
+                    creation_date: new Date().toISOString(),
                 };
 
                 console.log("Saved Parcel:", parcelData);
@@ -205,7 +213,6 @@ const ParcelOrder = () => {
                                     required: true,
                                     onChange: () => {
                                         setValue("senderCity", "");
-                                        setValue("senderServiceCenter", "");
                                     },
                                 })}
                                 className="border p-2 rounded w-full"
@@ -220,7 +227,6 @@ const ParcelOrder = () => {
                             <select
                                 {...register("senderCity", {
                                     required: true,
-                                    onChange: () => setValue("senderServiceCenter", ""),
                                 })}
                                 className="border p-2 rounded w-full"
                             >
@@ -229,22 +235,6 @@ const ParcelOrder = () => {
                                     <option key={city}>{city}</option>
                                 ))}
                             </select>
-
-                            {/* Service Center */}
-                            <select
-                                {...register("senderServiceCenter", { required: true })}
-                                className="border p-2 rounded w-full"
-                            >
-                                <option value="">Select Service Center</option>
-                                {senderCenters.map((center) =>
-                                    center.covered_area.map((area) => (
-                                        <option key={area} value={area}>
-                                            {area}
-                                        </option>
-                                    ))
-                                )}
-                            </select>
-
                             <textarea
                                 {...register("senderAddress", { required: true })}
                                 placeholder="Address"
@@ -284,7 +274,7 @@ const ParcelOrder = () => {
                                     required: true,
                                     onChange: () => {
                                         setValue("receiverCity", "");
-                                        setValue("receiverServiceCenter", "");
+
                                     },
                                 })}
                                 className="border p-2 rounded w-full"
@@ -299,7 +289,7 @@ const ParcelOrder = () => {
                             <select
                                 {...register("receiverCity", {
                                     required: true,
-                                    onChange: () => setValue("receiverServiceCenter", ""),
+
                                 })}
                                 className="border p-2 rounded w-full"
                             >
@@ -309,20 +299,6 @@ const ParcelOrder = () => {
                                 ))}
                             </select>
 
-                            {/* Service Center */}
-                            <select
-                                {...register("receiverServiceCenter", { required: true })}
-                                className="border p-2 rounded w-full"
-                            >
-                                <option value="">Select Service Center</option>
-                                {senderCenters.map((center) =>
-                                    center.covered_area.map((area) => (
-                                        <option key={area} value={area}>
-                                            {area}
-                                        </option>
-                                    ))
-                                )}
-                            </select>
 
                             <textarea
                                 {...register("receiverAddress", { required: true })}
