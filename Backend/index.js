@@ -1,7 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
 const port = 5000;
 
@@ -14,7 +14,7 @@ const client = new MongoClient(uri, {
     version: ServerApiVersion.v1,
     strict: true,
     deprecationErrors: true,
-  }
+  },
 });
 
 async function run() {
@@ -23,32 +23,63 @@ async function run() {
     await client.connect();
     // Send a ping to confirm a successful connection
 
-const database = client.db("Zap-shift");
+    const database = client.db("Zap-shift");
     const parcelsCollection = database.collection("parcels");
     app.post("/parcels", async (req, res) => {
-
-    try {
-
+      try {
         const parcelData = req.body;
 
         const result = await parcelsCollection.insertOne(parcelData);
 
         res.send(result);
-
-    } catch (error) {
-
+      } catch (error) {
         res.status(500).send({
-            message: "Failed to save parcel",
-            error
+          message: "Failed to save parcel",
+          error,
         });
+      }
+    });
+    app.get("/parcels", async (req, res) => {
+      try {
+        const email = req.query.email;
 
+        if (!email) {
+          return res.status(400).send({ message: "Email is required" });
+        }
+
+        const query = { created_by: email };
+
+        const parcels = await parcelsCollection
+          .find(query)
+          .sort({ createdAt: -1 }) // newest first
+          .toArray();
+
+        res.send(parcels);
+      } catch (error) {
+        res.status(500).send({ message: "Server error", error });
+      }
+    });
+ app.delete("/parcels/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    const result = await parcelsCollection.deleteOne({
+      _id: new ObjectId(id),
+    });
+
+    if (result.deletedCount === 1) {
+      return res.json({ success: true, message: "Parcel deleted successfully" });
+    } else {
+      return res.status(404).json({ success: false, message: "Parcel not found" });
     }
-
+  } catch (error) {
+    return res.status(500).json({ success: false, message: "Server error", error });
+  }
 });
-
-
     await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    console.log(
+      "Pinged your deployment. You successfully connected to MongoDB!",
+    );
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
@@ -57,9 +88,9 @@ const database = client.db("Zap-shift");
 run().catch(console.error);
 
 app.get("/", (req, res) => {
-    res.send("Zap Shift Backend is running!");
+  res.send("Zap Shift Backend is running!");
 });
 
 app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+  console.log(`Server running on port ${port}`);
 });

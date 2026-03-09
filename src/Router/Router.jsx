@@ -23,9 +23,9 @@ export const router = createBrowserRouter([
                 Component: Home,
                 loader: async () => {
                     const [customerRes, cardListRes, servicesres] = await Promise.all([
-                        fetch("./CustomerReview.json"),
-                        fetch("./data.json"),
-                        fetch("./services.json")
+                        fetch("/CustomerReview.json"),
+                        fetch("/data.json"),
+                        fetch("/services.json")
                     ]);
 
                     const customerservice = await customerRes.json();

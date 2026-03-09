@@ -132,6 +132,7 @@ const ParcelOrder = () => {
                     tracking_id: generateTrackingId(),
                     delivery_cost: cost.total,
                     created_by: user.email,
+                    payment_status: "pending",
                     creation_date: new Date().toISOString(),
                 };
                 axios.post("/parcels", parcelData)

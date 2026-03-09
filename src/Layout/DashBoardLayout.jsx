@@ -1,6 +1,7 @@
 import React from 'react'
 import { Outlet } from 'react-router'
 import { NavLink } from 'react-router'
+import Logo from '../Components/Logo/Logo'
 
 export const DashBoardLayout = () => {
     return (
@@ -30,8 +31,9 @@ export const DashBoardLayout = () => {
                         </label>
                     </div>
 
-                    <div className="flex-1 px-2 text-lg font-semibold">
-                        Dashboard
+                    <div className="flex items-center justify-evenly gap-3">
+                        <Logo />
+                        
                     </div>
                 </div>
 
