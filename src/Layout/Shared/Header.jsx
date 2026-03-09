@@ -14,21 +14,23 @@ const Header = () => {
                 { to: "/about-us", label: "About Us" },
                 { to: "/parcel-order", label: "Parcel Order" },
                 { to: "/price", label: "Pricing" },
+                user ? { to: "/dashboard", label: "Dashboard" } : null,
                 { to: "/rider", label: "Be a Rider" },
-            ].map(({ to, label }) => (
-                <li key={to}>
-                    <NavLink
-                        to={to}
-                        className={({ isActive }) =>
-                            isActive
-                                ? "btn btn-outline px-4 py-2 rounded-full border-gray-500 bg-[#CAEB66] text-black"
-                                : "text-white"
-                        }
-                    >
-                        {label}
-                    </NavLink>
-                </li>
-            ))}
+            ].filter(Boolean)
+                .map(({ to, label }) => (
+                    <li key={to}>
+                        <NavLink
+                            to={to}
+                            className={({ isActive }) =>
+                                isActive
+                                    ? "btn btn-outline px-4 py-2 rounded-full border-gray-500 bg-[#CAEB66] text-black"
+                                    : "text-white"
+                            }
+                        >
+                            {label}
+                        </NavLink>
+                    </li>
+                ))}
         </>
     )
 

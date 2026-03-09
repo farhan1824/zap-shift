@@ -22,6 +22,31 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
     // Send a ping to confirm a successful connection
+
+const database = client.db("Zap-shift");
+    const parcelsCollection = database.collection("parcels");
+    app.post("/parcels", async (req, res) => {
+
+    try {
+
+        const parcelData = req.body;
+
+        const result = await parcelsCollection.insertOne(parcelData);
+
+        res.send(result);
+
+    } catch (error) {
+
+        res.status(500).send({
+            message: "Failed to save parcel",
+            error
+        });
+
+    }
+
+});
+
+
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
@@ -29,8 +54,6 @@ async function run() {
     // await client.close();
   }
 }
-run().catch(console.dir);
-
 run().catch(console.error);
 
 app.get("/", (req, res) => {

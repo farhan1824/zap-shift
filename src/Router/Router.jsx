@@ -10,6 +10,8 @@ import { Pricing } from "../Layout/Pricing/Pricing";
 import AboutUs from "../Layout/AboutUs/AboutUs";
 import { Coverage } from "../Layout/Coverage/Coverage";
 import ParcelOrder from "../Layout/ParcelOrder/ParcelOrder";
+import { DashBoardLayout } from "../Layout/DashBoardLayout";
+import MyParcels from "../Layout/Dashboard/MyParcels/MyParcels";
 export const router = createBrowserRouter([
     {
         path: "/",
@@ -49,7 +51,7 @@ export const router = createBrowserRouter([
             {
                 path: "/parcel-order",
                 Component: ParcelOrder,
-                 loader: () => fetch("./warehouses.json")
+                loader: () => fetch("./warehouses.json")
             }
             ,
             {
@@ -69,6 +71,16 @@ export const router = createBrowserRouter([
             {
                 path: "/register",
                 Component: Register,
+            }
+        ]
+    },
+    {
+        path: "/dashboard",
+        Component: DashBoardLayout,
+        children: [
+            {
+                path: "parcels",
+                Component: MyParcels,
             }
         ]
     },

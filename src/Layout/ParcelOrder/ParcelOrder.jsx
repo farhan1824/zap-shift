@@ -3,11 +3,12 @@ import { useLoaderData } from "react-router";
 import { useForm } from "react-hook-form";
 import Swal from "sweetalert2";
 import { AuthCotext } from "../../Context/Authentication/AuthCotext";
+import { AxiosHook } from "../../Hooks/AxiosHook";
 
 const ParcelOrder = () => {
     const centers = useLoaderData();
     const { user } = use(AuthCotext)
-
+    const axios = AxiosHook()
     const { register, handleSubmit, watch, reset, setValue } = useForm();
 
     const parcelType = watch("type");
@@ -133,10 +134,15 @@ const ParcelOrder = () => {
                     created_by: user.email,
                     creation_date: new Date().toISOString(),
                 };
-
-                console.log("Saved Parcel:", parcelData);
-
-                Swal.fire("Success!", "Parcel Order Confirmed!", "success");
+                axios.post("/parcels", parcelData)
+                    .then(res => {
+                        console.log(res.data)
+                        Swal.fire("Success!", "Parcel Order Confirmed!", "success");
+                    })
+                    .catch(err => {
+                        console.log(err)
+                        Swal.fire("Error!", "Failed to save parcel", "error");
+                    })
 
                 reset();
             }
