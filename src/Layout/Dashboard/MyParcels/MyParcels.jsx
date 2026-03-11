@@ -8,14 +8,14 @@ const MyParcels = () => {
     const { user } = use(AuthCotext)
     const axios = AxiosHook()
 
-    const { data: MyParcelData = [], isLoading } = useQuery({
-        queryKey: ["my_parcels", user?.email],
-        enabled: !!user?.email,
-        queryFn: async () => {
-            const res = await axios.get(`/parcels?email=${user.email}`)
-            return res.data
-        }
-    })
+   const { data: MyParcelData = [], isLoading, refetch } = useQuery({
+    queryKey: ["my_parcels", user?.email],
+    enabled: !!user?.email,
+    queryFn: async () => {
+        const res = await axios.get(`/parcels?email=${user.email}`)
+        return res.data
+    }
+})
     console.log(MyParcelData);
     if (isLoading) {
         return <p className="text-black">Loading parcels...</p>
