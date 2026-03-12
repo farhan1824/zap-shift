@@ -1,25 +1,28 @@
 import { useQuery } from '@tanstack/react-query'
-import React, { use } from 'react'
+import React, { useContext } from 'react'
 import { AuthCotext } from '../../../Context/Authentication/AuthCotext'
 import { AxiosHook } from '../../../Hooks/AxiosHook'
 import Swal from 'sweetalert2'
+import { useNavigate } from 'react-router-dom'
 
 const MyParcels = () => {
-    const { user } = use(AuthCotext)
+    const { user } = useContext(AuthCotext)
     const axios = AxiosHook()
+    const navigate = useNavigate()
 
-   const { data: MyParcelData = [], isLoading, refetch } = useQuery({
-    queryKey: ["my_parcels", user?.email],
-    enabled: !!user?.email,
-    queryFn: async () => {
-        const res = await axios.get(`/parcels?email=${user.email}`)
-        return res.data
-    }
-})
-    console.log(MyParcelData);
+    const { data: MyParcelData = [], isLoading, refetch } = useQuery({
+        queryKey: ["my_parcels", user?.email],
+        enabled: !!user?.email,
+        queryFn: async () => {
+            const res = await axios.get(`/parcels?email=${user.email}`)
+            return res.data
+        }
+    })
+
     if (isLoading) {
         return <p className="text-black">Loading parcels...</p>
     }
+
     const handleDelete = async (id) => {
         const result = await Swal.fire({
             title: "Are you sure?",
@@ -29,11 +32,11 @@ const MyParcels = () => {
             confirmButtonColor: "#d33",
             cancelButtonColor: "#3085d6",
             confirmButtonText: "Yes, delete it!"
-        });
+        })
 
         if (result.isConfirmed) {
             try {
-                await axios.delete(`/parcels/${id}`);
+                await axios.delete(`/parcels/${id}`)
 
                 Swal.fire({
                     title: "Deleted!",
@@ -41,18 +44,25 @@ const MyParcels = () => {
                     icon: "success",
                     timer: 1500,
                     showConfirmButton: false
-                });
+                })
 
-                refetch();
+                refetch()
             } catch (error) {
                 Swal.fire({
                     title: "Error!",
                     text: "Failed to delete parcel.",
                     icon: "error"
-                });
+                })
             }
         }
-    };
+    }
+
+    const handlePayment = (id) => {
+        // navigate(`dashboard/payment/${id}`)
+        console.log("the id of the product", id);
+        navigate(`/dashboard/payment/${id}`)
+    }
+
     return (
         <div className="p-6 space-y-4">
 
@@ -84,6 +94,13 @@ const MyParcels = () => {
 
                     {/* BUTTONS */}
                     <div className="flex gap-3 pt-2">
+
+                        <button
+                            className="bg-green-500 text-white px-4 py-1 rounded hover:bg-green-600"
+                            onClick={() => handlePayment(parcel._id)}
+                        >
+                            Pay
+                        </button>
 
                         <button
                             className="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600"

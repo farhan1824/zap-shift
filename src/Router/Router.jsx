@@ -13,6 +13,7 @@ import ParcelOrder from "../Layout/ParcelOrder/ParcelOrder";
 import { DashBoardLayout } from "../Layout/DashBoardLayout";
 import MyParcels from "../Layout/Dashboard/MyParcels/MyParcels";
 import { PrivateRoutes } from "../Components/Private/PrivateRoutes";
+import ProductPayment from "../Layout/Dashboard/Payment/ProductPayment";
 export const router = createBrowserRouter([
     {
         path: "/",
@@ -90,6 +91,10 @@ export const router = createBrowserRouter([
             {
                 path: "parcels",
                 Component: MyParcels,
+            },
+            {
+                path: "payment/:id",
+                Component: ProductPayment,
             }
         ]
     },
