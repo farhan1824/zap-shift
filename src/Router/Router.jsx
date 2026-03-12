@@ -12,6 +12,7 @@ import { Coverage } from "../Layout/Coverage/Coverage";
 import ParcelOrder from "../Layout/ParcelOrder/ParcelOrder";
 import { DashBoardLayout } from "../Layout/DashBoardLayout";
 import MyParcels from "../Layout/Dashboard/MyParcels/MyParcels";
+import { PrivateRoutes } from "../Components/Private/PrivateRoutes";
 export const router = createBrowserRouter([
     {
         path: "/",
@@ -47,10 +48,15 @@ export const router = createBrowserRouter([
             {
                 path: "/price",
                 Component: Pricing
+
             },
             {
                 path: "/parcel-order",
-                Component: ParcelOrder,
+                element: <PrivateRoutes>
+                    <ParcelOrder></ParcelOrder>
+                </PrivateRoutes>,
+
+                // Component: ParcelOrder,
                 loader: () => fetch("./warehouses.json")
             }
             ,
@@ -76,7 +82,10 @@ export const router = createBrowserRouter([
     },
     {
         path: "/dashboard",
-        Component: DashBoardLayout,
+        element: <PrivateRoutes>
+            <DashBoardLayout></DashBoardLayout>
+        </PrivateRoutes>,
+        // Component: DashBoardLayout,
         children: [
             {
                 path: "parcels",

@@ -1,6 +1,6 @@
 import React, { use } from "react";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import SigninwithGoogle from "./SigninwithGoogle";
 import { AuthCotext } from "../../Context/Authentication/AuthCotext";
 import Swal from "sweetalert2";
@@ -9,6 +9,8 @@ const Signin = () => {
     const { signInUser, user } = use(AuthCotext)
     console.log(user);
     const nav = useNavigate()
+    const location = useLocation()
+    const from = location.state?.from || "/";
     const {
         register,
         handleSubmit,
@@ -27,11 +29,16 @@ const Signin = () => {
                         icon: "success",
                         draggable: true
                     });
-                    nav("/")
+                    nav(from)
                 }
             })
             .then((error) => {
                 console.log(error);
+                Swal.fire({
+                    icon: "error",
+                    title: "Login Failed",
+                    text: error.message || "Something went wrong. Please try again.",
+                });
             })
     };
 
