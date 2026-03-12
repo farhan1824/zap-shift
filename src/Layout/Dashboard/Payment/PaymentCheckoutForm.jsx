@@ -1,10 +1,25 @@
 import { CardElement, useElements, useStripe } from '@stripe/react-stripe-js';
+import { useQuery } from '@tanstack/react-query';
 import React, { useState } from 'react';
+import { useParams } from 'react-router';
+import { AxiosHook } from '../../../Hooks/AxiosHook';
 
 export const PaymentCheckoutForm = () => {
     const stripe = useStripe();
     const elements = useElements();
     const [errorMsg, setErrorMsg] = useState("");
+    const { ProductId } = useParams();
+    const axios = AxiosHook()
+    // console.log(ProductId);
+    const { data: PaymentProductData } = useQuery({
+        queryKey: ["parcels", ProductId],
+        queryFn: async () => {
+            const res = await axios.get(`/parcels/${ProductId}`)
+            return res.data
+        }
+    })
+    console.log(PaymentProductData);
+    const cost = PaymentProductData?.delivery_cost;
 
     const handlePayment = async (e) => {
         e.preventDefault();
@@ -65,7 +80,8 @@ export const PaymentCheckoutForm = () => {
                     disabled={!stripe}
                     className="w-full bg-[#CAEB66] text-black font-semibold py-2 rounded-lg transition"
                 >
-                    Pay Now
+                    Pay Now ${cost}
+                    {/* ${PaymentProductData.delivery_cost} */}
                 </button>
 
             </form>

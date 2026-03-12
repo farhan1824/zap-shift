@@ -59,23 +59,48 @@ async function run() {
         res.status(500).send({ message: "Server error", error });
       }
     });
- app.delete("/parcels/:id", async (req, res) => {
-  try {
-    const id = req.params.id;
+    app.delete("/parcels/:id", async (req, res) => {
+      try {
+        const id = req.params.id;
 
-    const result = await parcelsCollection.deleteOne({
-      _id: new ObjectId(id),
+        const result = await parcelsCollection.deleteOne({
+          _id: new ObjectId(id),
+        });
+
+        if (result.deletedCount === 1) {
+          return res.json({
+            success: true,
+            message: "Parcel deleted successfully",
+          });
+        } else {
+          return res
+            .status(404)
+            .json({ success: false, message: "Parcel not found" });
+        }
+      } catch (error) {
+        return res
+          .status(500)
+          .json({ success: false, message: "Server error", error });
+      }
     });
+    // getting information for payment
+    app.get("/parcels/:ProductId", async (req, res) => {
+      try {
+        const { ProductId } = req.params;
 
-    if (result.deletedCount === 1) {
-      return res.json({ success: true, message: "Parcel deleted successfully" });
-    } else {
-      return res.status(404).json({ success: false, message: "Parcel not found" });
-    }
-  } catch (error) {
-    return res.status(500).json({ success: false, message: "Server error", error });
-  }
-});
+        const query = { _id: new ObjectId(ProductId) };
+
+        const parcel = await parcelsCollection.findOne(query);
+
+        if (!parcel) {
+          return res.status(404).send({ message: "Parcel not found" });
+        }
+
+        res.send(parcel);
+      } catch (error) {
+        res.status(500).send({ message: "Server error", error });
+      }
+    });
     await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!",
