@@ -4,7 +4,8 @@ import React from 'react'
 import { PaymentCheckoutForm } from './PaymentCheckoutForm';
 
 const ProductPayment = () => {
-    const stripePromise = loadStripe('pk_test_6pRNASCoBOKtIshFeQd4XMUh');
+    const stripePromise = loadStripe(import.meta.env.VITE_publish_key);
+    // const stripePromise = loadStripe('pk_test_6pRNASCoBOKtIshFeQd4XMUh');
     return (
         <div className='text-black'>
 

@@ -16,6 +16,7 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   },
 });
+const stripe = require("stripe")(process.env.PAYMENT_GATEWAY_KEY);
 
 async function run() {
   try {
@@ -25,6 +26,7 @@ async function run() {
 
     const database = client.db("Zap-shift");
     const parcelsCollection = database.collection("parcels");
+    const paymentHistoryCollection = database.collection("paymenthistory");
     app.post("/parcels", async (req, res) => {
       try {
         const parcelData = req.body;
@@ -101,6 +103,108 @@ async function run() {
         res.status(500).send({ message: "Server error", error });
       }
     });
+    app.post("/payments", async (req, res) => {
+      try {
+        const { parcelId, email, amount, transactionId, paymentMethod } =
+          req.body;
+
+        if (!parcelId || !transactionId) {
+          return res.status(400).send({
+            success: false,
+            message: "Missing required payment info",
+          });
+        }
+
+        // 1️⃣ Update parcel payment status
+        const updateResult = await parcelsCollection.updateOne(
+          { _id: new ObjectId(parcelId) },
+          {
+            $set: {
+              payment_status: "paid",
+              transactionId: transactionId,
+              paid_at: new Date(),
+            },
+          },
+        );
+
+        // 2️⃣ Save payment history
+        const paymentRecord = {
+          parcelId,
+          email,
+          amount,
+          transactionId,
+          paymentMethod,
+          paid_at: new Date(),
+        };
+
+        const historyResult =
+          await paymentHistoryCollection.insertOne(paymentRecord);
+
+        res.send({
+          success: true,
+          updateResult,
+          historyResult,
+        });
+      } catch (error) {
+        console.error(error);
+
+        res.status(500).send({
+          success: false,
+          message: "Payment save failed",
+        });
+      }
+    });
+    app.get("/payments", async (req, res) => {
+      try {
+        const email = req.query.email;
+
+        let query = {};
+
+        if (email) {
+          query.email = email;
+        }
+
+        const payments = await paymentHistoryCollection
+          .find(query)
+          .sort({ paid_at: -1 })
+          .toArray();
+
+        res.send(payments);
+      } catch (error) {
+        res.status(500).send({ message: "Server error" });
+      }
+    });
+
+    app.post("/create-payment-intent", async (req, res) => {
+      try {
+        const { amount } = req.body;
+
+        if (!amount) {
+          return res.status(400).json({
+            success: false,
+            message: "Amount is required",
+          });
+        }
+
+        const paymentIntent = await stripe.paymentIntents.create({
+          amount: Number(amount), // amount in cents
+          currency: "usd",
+          payment_method_types: ["card"],
+        });
+
+        res.send({
+          clientSecret: paymentIntent.client_secret,
+        });
+      } catch (error) {
+        console.error("Stripe error:", error);
+
+        res.status(500).json({
+          success: false,
+          message: error.message,
+        });
+      }
+    });
+
     await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!",
