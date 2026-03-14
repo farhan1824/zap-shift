@@ -14,6 +14,7 @@ import { DashBoardLayout } from "../Layout/DashBoardLayout";
 import MyParcels from "../Layout/Dashboard/MyParcels/MyParcels";
 import { PrivateRoutes } from "../Components/Private/PrivateRoutes";
 import ProductPayment from "../Layout/Dashboard/Payment/ProductPayment";
+import { PaymentHistory } from "../Layout/Dashboard/Payment/PaymentHistory";
 export const router = createBrowserRouter([
     {
         path: "/",
@@ -91,6 +92,10 @@ export const router = createBrowserRouter([
             {
                 path: "parcels",
                 Component: MyParcels,
+            },
+            {
+                path: "payment-history",
+                Component: PaymentHistory,
             },
             {
                 path: "payment/:ProductId",

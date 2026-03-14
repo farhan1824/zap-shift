@@ -1,6 +1,7 @@
 import React, { use } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { AuthCotext } from "../../Context/Authentication/AuthCotext";
+import Loading from "../Loading/Loading";
 // import { AuthCotext } from "../Context/Authentication/AuthCotext";
 
 export const PrivateRoutes = ({ children }) => {
@@ -8,7 +9,8 @@ export const PrivateRoutes = ({ children }) => {
   const location = useLocation();
 
   if (loading) {
-    return <p className="text-center mt-10">Checking authentication...</p>;
+    return <Loading></Loading>;
+    // return <p className="text-center mt-10">Checking authentication...</p>;
   }
 
   if (!user) {

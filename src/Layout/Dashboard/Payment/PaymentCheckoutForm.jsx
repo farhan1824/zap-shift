@@ -1,12 +1,15 @@
 import { CardElement, useElements, useStripe } from '@stripe/react-stripe-js';
 import { useQuery } from '@tanstack/react-query';
 import React, { useState } from 'react';
-import { useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import { AxiosHook } from '../../../Hooks/AxiosHook';
+import Swal from 'sweetalert2';
+import Loading from '../../../Components/Loading/Loading';
 
 export const PaymentCheckoutForm = () => {
     const stripe = useStripe();
     const elements = useElements();
+    const nav = useNavigate();
     const [errorMsg, setErrorMsg] = useState("");
     const { ProductId } = useParams();
     const axios = AxiosHook()
@@ -19,7 +22,7 @@ export const PaymentCheckoutForm = () => {
         }
     })
     if (isPending) {
-        return ".............loading....................."
+        return <Loading></Loading>
     }
     console.log(PaymentProductData);
     const cost = PaymentProductData?.delivery_cost;
@@ -68,10 +71,19 @@ export const PaymentCheckoutForm = () => {
         }
         else {
             if (result.paymentIntent.status === "succeeded") {
+                Swal.fire({
+                    title: "SuccessFull!",
+                    text: "Your Payment has Been SuccessFull.",
+                    icon: "success",
+                    timer: 1500,
+                    showConfirmButton: false
+                })
+                nav("/dashboard/payment-history")
                 console.log("payment successfull");
                 console.log(result);
                 await axios.post("/payments", {
                     parcelId: ProductId,
+                    // tracking_id: PaymentProductData?.tracking_id,
                     email: PaymentProductData?.created_by,
                     amount: amountinCents,
                     transactionId: result.paymentIntent.id,

@@ -126,10 +126,15 @@ async function run() {
             },
           },
         );
-
+        const parcel = await parcelsCollection.findOne({
+          _id: new ObjectId(parcelId),
+          created_by: email,
+        });
         // 2️⃣ Save payment history
         const paymentRecord = {
           parcelId,
+          // tracking_id,
+          tracking_id: parcel.tracking_id,
           email,
           amount,
           transactionId,

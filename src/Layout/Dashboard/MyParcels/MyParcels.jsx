@@ -4,6 +4,7 @@ import { AuthCotext } from '../../../Context/Authentication/AuthCotext'
 import { AxiosHook } from '../../../Hooks/AxiosHook'
 import Swal from 'sweetalert2'
 import { useNavigate } from 'react-router-dom'
+import Loading from '../../../Components/Loading/Loading'
 
 const MyParcels = () => {
     const { user } = useContext(AuthCotext)
@@ -20,7 +21,8 @@ const MyParcels = () => {
     })
 
     if (isLoading) {
-        return <p className="text-black">Loading parcels...</p>
+        return <Loading></Loading>
+        // return <p className="text-black">Loading parcels...</p>
     }
 
     const handleDelete = async (id) => {
@@ -58,66 +60,93 @@ const MyParcels = () => {
     }
 
     const handlePayment = (id) => {
-        // navigate(`dashboard/payment/${id}`)
-        console.log("the id of the product", id);
         navigate(`/dashboard/payment/${id}`)
     }
 
     return (
-        <div className="p-6 space-y-4">
+        <div className="p-6">
 
-            <h2 className="text-2xl font-bold text-black">
+            <h2 className="text-2xl font-bold text-black mb-6">
                 My Parcels ({MyParcelData.length})
             </h2>
 
-            {MyParcelData.length === 0 && (
+            {MyParcelData.length === 0 ? (
                 <p className="text-gray-600">No parcels found.</p>
-            )}
+            ) : (
 
-            {MyParcelData.map((parcel) => (
-                <div
-                    key={parcel._id}
-                    className="border rounded-lg p-4 shadow bg-white text-black space-y-2"
-                >
-                    <p><strong>Sender:</strong> {parcel.senderName}</p>
-                    <p><strong>Receiver:</strong> {parcel.receiverName}</p>
+                <div className="overflow-x-auto bg-white rounded-lg shadow">
 
-                    <p>
-                        <strong>Created:</strong>{" "}
-                        {new Date(parcel.creation_date).toLocaleString(undefined, {
-                            dateStyle: "medium",
-                            timeStyle: "short",
-                        })}
-                    </p>
+                    <table className="table w-full text-black">
 
-                    <p><strong>Tracking ID:</strong> {parcel.tracking_id}</p>
+                        <thead className="bg-gray-100 text-black">
+                            <tr>
+                                <th>#</th>
+                                <th>Tracking ID</th>
+                                <th>Sender</th>
+                                <th>Receiver</th>
+                                <th>Created</th>
+                                <th>Payment</th>
+                                <th>Delete</th>
+                            </tr>
+                        </thead>
 
-                    {/* BUTTONS */}
-                    <div className="flex gap-3 pt-2">
+                        <tbody>
 
-                        <button
-                            className="bg-green-500 text-white px-4 py-1 rounded hover:bg-green-600"
-                            onClick={() => handlePayment(parcel._id)}
-                        >
-                            Pay
-                        </button>
+                            {MyParcelData.map((parcel, index) => (
 
-                        <button
-                            className="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600"
-                        >
-                            Edit
-                        </button>
+                                <tr key={parcel._id} className="hover">
 
-                        <button
-                            className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600"
-                            onClick={() => handleDelete(parcel._id)}
-                        >
-                            Delete
-                        </button>
+                                    <td>{index + 1}</td>
 
-                    </div>
+                                    <td className="font-mono text-xs">
+                                        {parcel.tracking_id}
+                                    </td>
+
+                                    <td>{parcel.senderName}</td>
+
+                                    <td>{parcel.receiverName}</td>
+
+                                    <td>
+                                        {new Date(parcel.creation_date).toLocaleString(undefined, {
+                                            dateStyle: "medium",
+                                            timeStyle: "short",
+                                        })}
+                                    </td>
+
+                                    <td>
+                                        {parcel.payment_status === "paid" ? (
+                                            <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">
+                                                Paid
+                                            </span>
+                                        ) : (
+                                            <button
+                                                className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
+                                                onClick={() => handlePayment(parcel._id)}
+                                            >
+                                                Pay
+                                            </button>
+                                        )}
+                                    </td>
+
+                                    <td>
+                                        <button
+                                            className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                                            onClick={() => handleDelete(parcel._id)}
+                                        >
+                                            Delete
+                                        </button>
+                                    </td>
+
+                                </tr>
+
+                            ))}
+
+                        </tbody>
+
+                    </table>
+
                 </div>
-            ))}
+            )}
 
         </div>
     )

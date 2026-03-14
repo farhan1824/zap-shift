@@ -33,7 +33,7 @@ export const DashBoardLayout = () => {
 
                     <div className="flex items-center justify-evenly gap-3">
                         <Logo />
-                        
+
                     </div>
                 </div>
 
@@ -51,7 +51,7 @@ export const DashBoardLayout = () => {
                 <ul className="menu bg-base-200 min-h-full w-80 p-4">
                     <li><NavLink to="/dashboard">Dashboard</NavLink></li>
                     <li><NavLink to="parcels">My Parcels</NavLink></li>
-                    <li><a>Track Parcel</a></li>
+                    <li><NavLink to="payment-history">Payment History</NavLink></li>
                     <li><a>Settings</a></li>
                 </ul>
             </div>
