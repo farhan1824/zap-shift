@@ -5,15 +5,21 @@ import Swal from 'sweetalert2';
 import { Link, useNavigate } from 'react-router';
 import SigninwithGoogle from './SigninwithGoogle';
 import { AuthCotext } from '../../Context/Authentication/AuthCotext';
+import axios from 'axios';
 const Register = () => {
-    const [image, setImage] = useState(null)
-    const { createUser } = use(AuthCotext)
+    const [image, setImage] = useState("")
+    const { createUser, updateUserProfile } = use(AuthCotext)
     const nav = useNavigate()
-    const handleImageChange = (e) => {
+    const handleImageChange = async (e) => {
         const file = e.target.files[0]
         if (file) {
             setImage(URL.createObjectURL(file))
         }
+        const formdata = new FormData();
+        formdata.append("image", file);
+        const res = await axios.post(`https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_image_uploader_key}`, formdata)
+        setImage(res.data.data.url);
+        // console.log(res.data.data.url);
     }
 
     const {
@@ -26,16 +32,20 @@ const Register = () => {
 
     const handelregister = (data) => {
         createUser(data.email, data.password)
-            .then((user) => {
-                console.log(user);
-                if (user) {
-                    Swal.fire({
-                        title: "Register Successfully",
-                        icon: "success",
-                        draggable: true
-                    });
-                    nav("/")
+            .then(async (result) => {
+                const userProfile = {
+                    displayName: data.name,
+                    photoURL: image
                 }
+
+                await updateUserProfile(userProfile)
+
+                Swal.fire({
+                    title: "Register Successfully",
+                    icon: "success"
+                });
+
+                nav("/")
                 reset()
             })
             .catch((error) => {

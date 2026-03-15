@@ -5,7 +5,8 @@ import {
     onAuthStateChanged,
     signInWithEmailAndPassword,
     signInWithPopup,
-    signOut
+    signOut,
+    updateProfile
 } from 'firebase/auth'
 import { auth } from '../../Firebase/Firebase.init'
 import { useEffect, useState } from 'react'
@@ -30,7 +31,9 @@ const AuthProvider = ({ children }) => {
         setLoading(true)
         return signInWithPopup(auth, googleProvider)
     }
-
+    const updateUserProfile = (profileinfo) => {
+        return updateProfile(auth.currentUser, profileinfo)
+    }
     const logout = () => {
         setLoading(true)
         return signOut(auth)
@@ -51,7 +54,8 @@ const AuthProvider = ({ children }) => {
         createUser,
         signInUser,
         signinwithGoogle,
-        logout
+        logout,
+        updateUserProfile
     }
 
     return (
