@@ -33,6 +33,16 @@ const Register = () => {
     const handelregister = (data) => {
         createUser(data.email, data.password)
             .then(async (result) => {
+                // sending user info to mongo
+                const userinfo = {
+                    email: data.email,
+                    role: "user",
+                    created_at: new Date().toISOString(),
+                    last_login: new Date().toISOString(),
+                }
+                const userRes = await axios.post(`http://localhost:5000/users`, userinfo);
+                console.log(userRes.data);
+                // sending user info to firebase
                 const userProfile = {
                     displayName: data.name,
                     photoURL: image

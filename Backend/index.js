@@ -1,12 +1,20 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const admin = require("firebase-admin");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
 const port = 5000;
 
 app.use(cors());
 app.use(express.json());
+
+const serviceAccount = require("./zap-shift-firebase-admin-key.json");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
+
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.bkhpsxf.mongodb.net/?appName=Cluster0`;
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -25,9 +33,48 @@ async function run() {
     // Send a ping to confirm a successful connection
 
     const database = client.db("Zap-shift");
+    const usersCollection = database.collection("users");
     const parcelsCollection = database.collection("parcels");
     const paymentHistoryCollection = database.collection("paymenthistory");
-    app.post("/parcels", async (req, res) => {
+    // jwt token middleware
+    const TokenVerify = async (req, res, next) => {
+      // console.log("header in middlware", req.headers);
+      const authheader = req.headers.authorization;
+      // const authheader = req.headers.Authorization;
+      if (!authheader) {
+        return res.status(401).send({
+          message: "Unauthorized Access",
+        });
+      }
+      const Token = authheader.split(" ")[1];
+      if (!Token) {
+        return res.status(401).send({
+          message: "Unauthorized Access",
+        });
+      }
+      // verify the token
+      try {
+        const decode = await admin.auth().verifyIdToken(Token);
+        req.decoded = decode;
+        next();
+      } catch (error) {
+        return res.status(403).send({ message: "Forbidden Access" });
+      }
+    };
+    app.post("/users", TokenVerify, async (req, res) => {
+      const email = req.body.email;
+      const userexists = await usersCollection.findOne({ email });
+      if (userexists) {
+        return res
+          .status(200)
+          .send({ message: "user already exists", inserted: false });
+      } else {
+        const user = req.body;
+        const result = await usersCollection.insertOne(user);
+        res.send(result);
+      }
+    });
+    app.post("/parcels", TokenVerify, async (req, res) => {
       try {
         const parcelData = req.body;
 
@@ -41,9 +88,13 @@ async function run() {
         });
       }
     });
-    app.get("/parcels", async (req, res) => {
+    app.get("/parcels", TokenVerify, async (req, res) => {
       try {
         const email = req.query.email;
+        if (email !== req.decoded.email) {
+          return res.status(403).send({ message: "Forbidden Access" });
+        }
+        // console.log(req.headers);
 
         if (!email) {
           return res.status(400).send({ message: "Email is required" });
@@ -61,7 +112,7 @@ async function run() {
         res.status(500).send({ message: "Server error", error });
       }
     });
-    app.delete("/parcels/:id", async (req, res) => {
+    app.delete("/parcels/:id", TokenVerify, async (req, res) => {
       try {
         const id = req.params.id;
 
@@ -86,7 +137,7 @@ async function run() {
       }
     });
     // getting information for payment
-    app.get("/parcels/:ProductId", async (req, res) => {
+    app.get("/parcels/:ProductId", TokenVerify, async (req, res) => {
       try {
         const { ProductId } = req.params;
 
@@ -103,11 +154,13 @@ async function run() {
         res.status(500).send({ message: "Server error", error });
       }
     });
-    app.post("/payments", async (req, res) => {
+    app.post("/payments", TokenVerify, async (req, res) => {
       try {
         const { parcelId, email, amount, transactionId, paymentMethod } =
           req.body;
-
+        if (email !== req.decoded.email) {
+          return res.status(403).send({ message: "Forbidden Access" });
+        }
         if (!parcelId || !transactionId) {
           return res.status(400).send({
             success: false,
@@ -159,9 +212,14 @@ async function run() {
         });
       }
     });
-    app.get("/payments", async (req, res) => {
+    app.get("/payments", TokenVerify, async (req, res) => {
+      // console.log("header for payment", req.headers);
       try {
         const email = req.query.email;
+
+        if (email !== req.decoded.email) {
+          return res.status(403).send({ message: "Forbidden Access" });
+        }
 
         let query = {};
 

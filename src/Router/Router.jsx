@@ -40,7 +40,10 @@ export const router = createBrowserRouter([
             },
             {
                 path: "/rider",
-                Component: Rider
+                // Component: Rider
+                element: <PrivateRoutes>
+                    <Rider></Rider>
+                </PrivateRoutes>
             },
             {
                 path: "/coverage",
