@@ -126,7 +126,7 @@ const Signin = () => {
                 {/* Register */}
                 <p className="text-sm mt-6 text-gray-600">
                     Don’t have an account?{" "}
-                    <Link to="/register" className="text-black font-medium hover:underline">
+                    <Link state={{ from: from }} to="/register" className="text-black font-medium hover:underline">
                         Register
                     </Link>
                 </p>

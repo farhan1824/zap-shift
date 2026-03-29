@@ -1,14 +1,16 @@
-import React, { use, useState } from 'react'
+import { useContext, useState } from 'react'
 import { useForm } from "react-hook-form";
-import UseAuth from '../../Hooks/UseAuth';
 import Swal from 'sweetalert2';
-import { Link, useNavigate } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router';
 import SigninwithGoogle from './SigninwithGoogle';
 import { AuthCotext } from '../../Context/Authentication/AuthCotext';
 import axios from 'axios';
 const Register = () => {
     const [image, setImage] = useState("")
-    const { createUser, updateUserProfile } = use(AuthCotext)
+    const { createUser, updateUserProfile } = useContext(AuthCotext)
+    const location = useLocation();
+    const from = location.state?.from || "/";
+    console.log(location)
     const nav = useNavigate()
     const handleImageChange = async (e) => {
         const file = e.target.files[0]
@@ -40,7 +42,17 @@ const Register = () => {
                     created_at: new Date().toISOString(),
                     last_login: new Date().toISOString(),
                 }
-                const userRes = await axios.post(`http://localhost:5000/users`, userinfo);
+                const token = await result.user.getIdToken();
+
+                const userRes = await axios.post(
+                    "http://localhost:5000/users",
+                    userinfo,
+                    {
+                        headers: {
+                            authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
                 console.log(userRes.data);
                 // sending user info to firebase
                 const userProfile = {
@@ -55,7 +67,7 @@ const Register = () => {
                     icon: "success"
                 });
 
-                nav("/")
+                nav(from, { replace: true });
                 reset()
             })
             .catch((error) => {

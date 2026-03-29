@@ -4,26 +4,23 @@ import Loading from "../../Components/Loading/Loading";
 import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaCheckCircle } from "react-icons/fa";
 
 const ActiveRiders = () => {
-    const [riders, setRiders] = useState([]);
-    const [loading, setLoading] = useState(true);
     const axios = AxiosHook();
+    const {
+        data: activerider = [],
+        isLoading,
+        refetch,
+    } = useQuery({
+        queryKey: ["ActiveRiders"],
+        queryFn: async () => {
+            const res = await axios.get("/riders?status=active");
+            return res.data;
+        },
+    });
 
-    useEffect(() => {
-        axios
-            .get("/riders?status=active")
-            .then((res) => {
-                setRiders(res.data);
-                setLoading(false);
-            })
-            .catch((err) => {
-                console.log(err);
-                setLoading(false);
-            });
-    }, []);
 
-    if (loading) return <Loading />;
+    if (isLoading) return <Loading />;
 
-    if (riders.length === 0)
+    if (activerider.length === 0)
         return (
             <div className="flex justify-center items-center h-64">
                 <div className="card w-96 bg-red-50 shadow-lg border border-red-300 text-center p-6">
@@ -43,7 +40,7 @@ const ActiveRiders = () => {
             <h2 className="text-3xl font-bold mb-6">Active Riders</h2>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {riders.map((rider) => (
+                {activerider.map((rider) => (
                     <div
                         key={rider._id}
                         className="card bg-white shadow-lg border border-gray-200 hover:shadow-xl transition duration-300 rounded-lg p-5"

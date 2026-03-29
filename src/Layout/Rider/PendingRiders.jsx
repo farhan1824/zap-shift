@@ -1,45 +1,34 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
+import { useQuery } from "@tanstack/react-query";
 import { AxiosHook } from "../../Hooks/AxiosHook";
 import Loading from "../../Components/Loading/Loading";
 import Swal from "sweetalert2";
 import { FaCheckCircle, FaTimesCircle, FaEye } from "react-icons/fa";
 
 export const PendingRiders = () => {
-    const [riders, setRiders] = useState([]);
-    const [loading, setLoading] = useState(true);
     const axios = AxiosHook();
 
-    useEffect(() => {
-        fetchRiders();
-    }, []);
+    const {
+        data: riders = [],
+        isLoading,
+        refetch,
+    } = useQuery({
+        queryKey: ["pendingRiders"],
+        queryFn: async () => {
+            const res = await axios.get("/riders?status=pending");
+            return res.data;
+        },
+    });
 
-    const fetchRiders = () => {
-        setLoading(true);
-        axios.get("/riders?status=pending")
-            .then((res) => {
-                setRiders(res.data);
-                setLoading(false);
-            })
-            .catch((err) => {
-                console.log(err);
-                setLoading(false);
-            });
-    };
-
-    const handleApprove = (riderId) => {
-        axios.patch(`/riders/${riderId}`, { status: "active" })
+    const handleAction = (riderId, status) => {
+        axios.patch(`/riders/${riderId}`, { status })
             .then(() => {
-                Swal.fire("Approved!", "Rider has been approved.", "success");
-                fetchRiders();
-            })
-            .catch((err) => console.log(err));
-    };
-
-    const handleDisapprove = (riderId) => {
-        axios.patch(`/riders/${riderId}`, { status: "disapproved" })
-            .then(() => {
-                Swal.fire("Disapproved!", "Rider has been disapproved.", "info");
-                fetchRiders();
+                Swal.fire(
+                    status === "active" ? "Approved!" : "Disapproved!",
+                    `Rider has been ${status === "active" ? "approved" : "disapproved"}.`,
+                    status === "active" ? "success" : "info"
+                );
+                refetch();
             })
             .catch((err) => console.log(err));
     };
@@ -63,7 +52,7 @@ export const PendingRiders = () => {
         });
     };
 
-    if (loading) return <Loading />;
+    if (isLoading) return <Loading />;
 
     if (riders.length === 0)
         return (
@@ -90,10 +79,10 @@ export const PendingRiders = () => {
                 <table className="table table-zebra w-full shadow-lg border border-gray-200 rounded-lg">
                     <thead className="bg-gray-100 text-black">
                         <tr>
-                            <th className="text-left">Name</th>
-                            <th className="text-left">Email</th>
-                            <th className="text-left">Phone</th>
-                            <th className="text-left">Applied Date</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Applied Date</th>
                             <th className="text-center">Actions</th>
                         </tr>
                     </thead>
@@ -106,26 +95,49 @@ export const PendingRiders = () => {
                                 <td>{new Date(rider.createAt).toLocaleDateString()}</td>
                                 <td className="flex justify-center gap-3">
                                     <button
-                                        onClick={() => handleApprove(rider._id)}
-                                        title="Approve"
-                                        className="btn btn-circle btn-sm btn-success tooltip tooltip-top"
-                                        data-tip="Approve Rider"
+                                        onClick={() => {
+                                            Swal.fire({
+                                                title: "Are you sure?",
+                                                text: "Do you want to approve this rider?",
+                                                icon: "warning",
+                                                showCancelButton: true,
+                                                confirmButtonColor: "#22c55e",
+                                                cancelButtonColor: "#d33",
+                                                confirmButtonText: "Yes, approve it!",
+                                            }).then((result) => {
+                                                if (result.isConfirmed) {
+                                                    handleAction(rider._id, "active");
+                                                }
+                                            });
+                                        }}
+                                        className="btn btn-circle btn-sm btn-success"
                                     >
                                         <FaCheckCircle />
                                     </button>
+
                                     <button
-                                        onClick={() => handleDisapprove(rider._id)}
-                                        title="Disapprove"
-                                        className="btn btn-circle btn-sm btn-error tooltip tooltip-top"
-                                        data-tip="Disapprove Rider"
+                                        onClick={() => {
+                                            Swal.fire({
+                                                title: "Are you sure?",
+                                                text: "Do you want to disapprove this rider?",
+                                                icon: "warning",
+                                                showCancelButton: true,
+                                                confirmButtonColor: "#ef4444",
+                                                cancelButtonColor: "#22c55e",
+                                                confirmButtonText: "Yes, disapprove it!",
+                                            }).then((result) => {
+                                                if (result.isConfirmed) {
+                                                    handleAction(rider._id, "disapproved");
+                                                }
+                                            });
+                                        }}
+                                        className="btn btn-circle btn-sm btn-error"
                                     >
                                         <FaTimesCircle />
                                     </button>
                                     <button
                                         onClick={() => handleViewDetails(rider)}
-                                        title="View Details"
-                                        className="btn btn-circle btn-sm btn-info tooltip tooltip-top"
-                                        data-tip="View Rider Details"
+                                        className="btn btn-circle btn-sm btn-info"
                                     >
                                         <FaEye />
                                     </button>
