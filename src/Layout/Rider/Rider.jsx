@@ -1,11 +1,17 @@
-import React, { use, useContext, useEffect } from "react";
+import React, { use, useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import driverimg from "../../assets/agent-pending.png";
 import { AuthCotext } from "../../Context/Authentication/AuthCotext";
+import { useLoaderData } from "react-router";
+import Swal from "sweetalert2";
+import { AxiosHook } from "../../Hooks/AxiosHook";
 
 const Rider = () => {
-  const { user } = use(AuthCotext)
-
+  const { user } = use(AuthCotext);
+  const riders = useLoaderData();
+  // console.log(riders)
+  const [selectedRegion, setSelectedRegion] = useState("");
+  const axios = AxiosHook()
   const {
     register,
     handleSubmit,
@@ -13,7 +19,7 @@ const Rider = () => {
     formState: { errors },
   } = useForm();
 
-  // ✅ Set default values from user
+  // Set default user values
   useEffect(() => {
     if (user) {
       setValue("name", user.displayName || "");
@@ -21,10 +27,46 @@ const Rider = () => {
     }
   }, [user, setValue]);
 
-  // ✅ Submit handler
+  //Reset district when region changes
+  useEffect(() => {
+    setValue("district", "");
+  }, [selectedRegion, setValue]);
+
+  // Handle region change
+  const handleRegionChange = (e) => {
+    setSelectedRegion(e.target.value);
+  };
+
+  // Get unique regions
+  const regions = [...new Set(riders.map((item) => item.region))];
+
+  // Filter districts by selected region
+  const filteredDistricts = riders.filter(
+    (item) => item.region === selectedRegion
+  );
+
+  // Submit handler
   const onSubmit = (data) => {
-    console.log("Form Data:", data);
-    // এখান থেকে API call করতে পারো
+    const formdata = {
+      ...data,
+      createAt: new Date().toISOString(),
+      status: "pending"
+    }
+    axios.post("/rider", formdata)
+      .then(res => {
+        console.log(res.data)
+        if (res.data.insertedId) {
+          Swal.fire({
+            title: "Form Submitted!",
+            text: "Thank you for your application. We will review it and get back to you soon.",
+            icon: "success",
+            confirmButtonText: "OK"
+          });
+        }
+      })
+      .catch(error => {
+        console.log(error)
+      })
   };
 
   return (
@@ -74,27 +116,33 @@ const Rider = () => {
           {/* Region */}
           <div>
             <label className="block text-sm font-medium">Your Region</label>
-            <select {...register("region")} className="w-full border rounded-md p-2 mt-1">
+            <select
+              {...register("region")}
+              onChange={handleRegionChange}
+              className="w-full border rounded-md p-2 mt-1"
+            >
               <option value="">Select Region</option>
-              <option>Dhaka</option>
-              <option>Chattogram</option>
-              <option>Khulna</option>
-              <option>Rajshahi</option>
-              <option>Sylhet</option>
-              <option>Barishal</option>
-              <option>Rangpur</option>
-              <option>Mymensingh</option>
+              {regions.map((region) => (
+                <option key={region} value={region}>
+                  {region}
+                </option>
+              ))}
             </select>
           </div>
 
           {/* District */}
           <div>
             <label className="block text-sm font-medium">Your District</label>
-            <select {...register("district")} className="w-full border rounded-md p-2 mt-1">
+            <select
+              {...register("district")}
+              className="w-full border rounded-md p-2 mt-1"
+            >
               <option value="">Select District</option>
-              <option>District 1</option>
-              <option>District 2</option>
-              <option>District 3</option>
+              {filteredDistricts.map((item) => (
+                <option key={item.district} value={item.district}>
+                  {item.district}
+                </option>
+              ))}
             </select>
           </div>
 

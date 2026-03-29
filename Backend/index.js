@@ -36,6 +36,7 @@ async function run() {
     const usersCollection = database.collection("users");
     const parcelsCollection = database.collection("parcels");
     const paymentHistoryCollection = database.collection("paymenthistory");
+    const riderCollection = database.collection("rider");
     // jwt token middleware
     const TokenVerify = async (req, res, next) => {
       // console.log("header in middlware", req.headers);
@@ -61,6 +62,55 @@ async function run() {
         return res.status(403).send({ message: "Forbidden Access" });
       }
     };
+    app.post("/rider", TokenVerify, async (req, res) => {
+      const email = req.body.email;
+      const riderexists = await riderCollection.findOne({ email });
+      if (riderexists) {
+        return res
+          .status(200)
+          .send({ message: "rider already exists", inserted: false });
+      } else {
+        const rider = req.body;
+        const result = await riderCollection.insertOne(rider);
+        res.send(result);
+      }
+    });
+    app.get("/riders", async (req, res) => {
+  const { status } = req.query;
+
+  let query = {};
+
+  // ✅ If status is provided → filter
+  if (status) {
+    query.status = status;
+  }
+
+  const result = await riderCollection.find(query).toArray();
+  res.send(result);
+});
+app.patch("/riders/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    if (!["active", "disapproved"].includes(status)) {
+      return res.status(400).json({ message: "Invalid status value" });
+    }
+
+    const result = await riderCollection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { status } }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ message: "Rider not found" });
+    }
+
+    res.json({ message: `Rider has been ${status}` });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server Error" });
+  }
+});
     app.post("/users", TokenVerify, async (req, res) => {
       const email = req.body.email;
       const userexists = await usersCollection.findOne({ email });

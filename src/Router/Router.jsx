@@ -15,6 +15,8 @@ import MyParcels from "../Layout/Dashboard/MyParcels/MyParcels";
 import { PrivateRoutes } from "../Components/Private/PrivateRoutes";
 import ProductPayment from "../Layout/Dashboard/Payment/ProductPayment";
 import { PaymentHistory } from "../Layout/Dashboard/Payment/PaymentHistory";
+import ActiveRiders from "../Layout/Rider/ActiveRiders";
+import { PendingRiders } from "../Layout/Rider/PendingRiders";
 export const router = createBrowserRouter([
     {
         path: "/",
@@ -43,7 +45,8 @@ export const router = createBrowserRouter([
                 // Component: Rider
                 element: <PrivateRoutes>
                     <Rider></Rider>
-                </PrivateRoutes>
+                </PrivateRoutes>,
+                loader: () => fetch("./warehouses.json")
             },
             {
                 path: "/coverage",
@@ -103,6 +106,14 @@ export const router = createBrowserRouter([
             {
                 path: "payment/:ProductId",
                 Component: ProductPayment,
+            },
+            {
+                path: "active-riders",
+                Component: ActiveRiders,
+            },
+            {
+                path: "pending-riders",
+                Component: PendingRiders,
             }
         ]
     },
