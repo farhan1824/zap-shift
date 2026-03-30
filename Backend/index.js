@@ -79,41 +79,51 @@ async function run() {
       }
     });
     app.get("/riders", async (req, res) => {
-  const { status } = req.query;
+      const { status } = req.query;
 
-  let query = {};
+      let query = {};
 
-  // ✅ If status is provided → filter
-  if (status) {
-    query.status = status;
-  }
+      // ✅ If status is provided → filter
+      if (status) {
+        query.status = status;
+      }
 
-  const result = await riderCollection.find(query).toArray();
-  res.send(result);
-});
-app.patch("/riders/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { status } = req.body;
-    if (!["active", "disapproved"].includes(status)) {
-      return res.status(400).json({ message: "Invalid status value" });
-    }
+      const result = await riderCollection.find(query).toArray();
+      res.send(result);
+    });
+    app.patch("/riders/:id", async (req, res) => {
+      try {
+        const { id } = req.params;
+        const { status, email } = req.body;
+        if (!["active", "disapproved"].includes(status)) {
+          return res.status(400).json({ message: "Invalid status value" });
+        }
 
-    const result = await riderCollection.updateOne(
-      { _id: new ObjectId(id) },
-      { $set: { status } }
-    );
+        const result = await riderCollection.updateOne(
+          { _id: new ObjectId(id) },
+          { $set: { status } }
+        );
+        if (status === "active") {
+             const RoleUpdate = await usersCollection.updateOne(
+          { email: email },
+          { $set: { role: "rider" } }
+        );
+       if (RoleUpdate.matchedCount === 0) {
+          return res.status(404).json({ message: "Rider not found" });
+        }
+        }
 
-    if (result.matchedCount === 0) {
-      return res.status(404).json({ message: "Rider not found" });
-    }
+       
+        if (result.matchedCount === 0) {
+          return res.status(404).json({ message: "Rider not found" });
+        }
 
-    res.json({ message: `Rider has been ${status}` });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server Error" });
-  }
-});
+        res.json({ message: `Rider has been ${status}` });
+      } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Server Error" });
+      }
+    });
     app.post("/users", TokenVerify, async (req, res) => {
       const email = req.body.email;
       const userexists = await usersCollection.findOne({ email });

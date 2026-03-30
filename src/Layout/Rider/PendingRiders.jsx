@@ -20,8 +20,8 @@ export const PendingRiders = () => {
         },
     });
 
-    const handleAction = (riderId, status) => {
-        axios.patch(`/riders/${riderId}`, { status })
+    const handleAction = (riderId, status,email) => {
+        axios.patch(`/riders/${riderId}`, { status,email })
             .then(() => {
                 Swal.fire(
                     status === "active" ? "Approved!" : "Disapproved!",
@@ -106,7 +106,7 @@ export const PendingRiders = () => {
                                                 confirmButtonText: "Yes, approve it!",
                                             }).then((result) => {
                                                 if (result.isConfirmed) {
-                                                    handleAction(rider._id, "active");
+                                                    handleAction(rider._id, "active",rider.email);
                                                 }
                                             });
                                         }}
@@ -127,7 +127,7 @@ export const PendingRiders = () => {
                                                 confirmButtonText: "Yes, disapprove it!",
                                             }).then((result) => {
                                                 if (result.isConfirmed) {
-                                                    handleAction(rider._id, "disapproved");
+                                                    handleAction(rider._id, "disapproved","");
                                                 }
                                             });
                                         }}
