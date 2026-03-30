@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
 import { AxiosHook } from "../../Hooks/AxiosHook";
 import Loading from "../../Components/Loading/Loading";
 import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaCheckCircle } from "react-icons/fa";
-
+import { useQuery } from '@tanstack/react-query';
 const ActiveRiders = () => {
     const axios = AxiosHook();
     const {
