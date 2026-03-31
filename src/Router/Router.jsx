@@ -17,6 +17,7 @@ import ProductPayment from "../Layout/Dashboard/Payment/ProductPayment";
 import { PaymentHistory } from "../Layout/Dashboard/Payment/PaymentHistory";
 import ActiveRiders from "../Layout/Rider/ActiveRiders";
 import { PendingRiders } from "../Layout/Rider/PendingRiders";
+import ManageAdmin from "../Layout/MangeAdmin/ManageAdmin";
 export const router = createBrowserRouter([
     {
         path: "/",
@@ -114,6 +115,11 @@ export const router = createBrowserRouter([
             {
                 path: "pending-riders",
                 Component: PendingRiders,
+            } ,
+            {
+                path: "make-admin",
+                Component: ManageAdmin
+                ,
             }
         ]
     },

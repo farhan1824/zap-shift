@@ -54,7 +54,7 @@ export const DashBoardLayout = () => {
                     <li><NavLink to="payment-history">Payment History</NavLink></li>
                     <li><NavLink to="active-riders">Active Riders</NavLink></li>
                     <li><NavLink to="pending-riders">Pending Riders</NavLink></li>
-                    <li><a>Settings</a></li>
+                    <li><NavLink to="make-admin">Make Admin</NavLink></li>
                 </ul>
             </div>
         </div >

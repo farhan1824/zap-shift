@@ -137,6 +137,65 @@ async function run() {
         res.send(result);
       }
     });
+
+// GET /users/search?email=<partialEmail>
+app.get("/users/search", async (req, res) => {
+  try {
+    const { email } = req.query;
+    if (!email) return res.status(400).json({ message: "Email query is required" });
+
+    // Use case-insensitive regex for partial match
+    const regex = new RegExp(email, "i"); 
+    const users = await usersCollection
+      .find({ email: { $regex: regex } })
+      .project({ email: 1, created_at: 1, role: 1 }) // only return needed fields
+      .toArray();
+
+    if (users.length === 0) return res.status(404).json({ message: "No users found" });
+
+    res.json(users);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// PATCH /users/:id/role
+// Body: { role: "admin" } → promote, { role: "user" } → demote
+app.patch("/users/:id/role", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { role } = req.body;
+
+    if (!role) {
+      return res.status(400).json({ message: "Role is required" });
+    }
+
+    // You can restrict to valid roles only if needed
+    const validRoles = ["user", "admin", "rider"];
+    if (!validRoles.includes(role)) {
+      return res.status(400).json({ message: `Role must be one of: ${validRoles.join(", ")}` });
+    }
+
+    const result = await usersCollection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { role } }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({
+      message: `User role updated to "${role}"`,
+      userId: id,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
     app.post("/parcels", TokenVerify, async (req, res) => {
       try {
         const parcelData = req.body;
