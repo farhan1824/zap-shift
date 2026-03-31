@@ -12,12 +12,14 @@ import { Coverage } from "../Layout/Coverage/Coverage";
 import ParcelOrder from "../Layout/ParcelOrder/ParcelOrder";
 import { DashBoardLayout } from "../Layout/DashBoardLayout";
 import MyParcels from "../Layout/Dashboard/MyParcels/MyParcels";
-import { PrivateRoutes } from "../Components/Private/PrivateRoutes";
+import { PrivateRoutes } from "../Components/Routes/PrivateRoutes";
 import ProductPayment from "../Layout/Dashboard/Payment/ProductPayment";
 import { PaymentHistory } from "../Layout/Dashboard/Payment/PaymentHistory";
 import ActiveRiders from "../Layout/Rider/ActiveRiders";
 import { PendingRiders } from "../Layout/Rider/PendingRiders";
 import ManageAdmin from "../Layout/MangeAdmin/ManageAdmin";
+import Forbidden from "../Components/Forbidden/Forbidden";
+import { AdminRoutes } from "../Components/Routes/AdminRoutes";
 export const router = createBrowserRouter([
     {
         path: "/",
@@ -48,6 +50,10 @@ export const router = createBrowserRouter([
                     <Rider></Rider>
                 </PrivateRoutes>,
                 loader: () => fetch("./warehouses.json")
+            },
+            {
+                path: "/forbidden",
+                Component: Forbidden,
             },
             {
                 path: "/coverage",
@@ -110,15 +116,24 @@ export const router = createBrowserRouter([
             },
             {
                 path: "active-riders",
-                Component: ActiveRiders,
+                element: <AdminRoutes>
+                    <ActiveRiders></ActiveRiders>
+                </AdminRoutes>
+                // Component: ActiveRiders,
             },
             {
                 path: "pending-riders",
-                Component: PendingRiders,
+                element: <AdminRoutes>
+                    <PendingRiders></PendingRiders>
+                </AdminRoutes>
+                // Component: PendingRiders,
             } ,
             {
                 path: "make-admin",
-                Component: ManageAdmin
+                element:<AdminRoutes>
+                    <ManageAdmin></ManageAdmin>
+                </AdminRoutes>
+                // Component: ManageAdmin
                 ,
             }
         ]

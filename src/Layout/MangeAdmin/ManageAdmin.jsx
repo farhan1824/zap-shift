@@ -13,7 +13,6 @@ const ManageAdmin = () => {
   };
 
   const [query, setQuery] = useState("");
-  const [refetchCalled, setRefetchCalled] = useState(false);
 
   const { data: users = [], refetch, isLoading, isError, error } = useQuery({
     queryKey: ["users", query],
@@ -29,7 +28,6 @@ const ManageAdmin = () => {
 
   const handleSearch = async () => {
     if (!query) return;
-    setRefetchCalled(true);
     const result = await refetch();
 
     if (result.data.length === 0) {
@@ -44,9 +42,45 @@ const ManageAdmin = () => {
     }
   };
 
-  const handleRoleChange = (userId, newRole) => {
-    roleMutation.mutate({ userId, role: newRole });
-  };
+ const handleRoleChange = (userId, newRole) => {
+  const isPromoting = newRole === "admin";
+
+  Swal.fire({
+    title: isPromoting ? "Promote to Admin?" : "Demote to User?",
+    text: isPromoting
+      ? "This user will gain admin privileges."
+      : "This user will lose admin privileges.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: isPromoting ? "#16a34a" : "#dc2626", // green / red
+    cancelButtonColor: "#6b7280",
+    confirmButtonText: isPromoting ? "Yes, Promote" : "Yes, Demote",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      roleMutation.mutate(
+        { userId, role: newRole },
+        {
+          onSuccess: () => {
+            refetch();
+
+            // ✅ Success popup after action
+            Swal.fire({
+              icon: "success",
+              title: isPromoting
+                ? "User Promoted!"
+                : "User Demoted!",
+              text: isPromoting
+                ? "The user is now an admin."
+                : "The user is now a regular user.",
+              timer: 2000,
+              showConfirmButton: false,
+            });
+          },
+        }
+      );
+    }
+  });
+};
 
   return (
     <div className="p-6 max-w-xl mx-auto text-black">

@@ -65,6 +65,33 @@ async function run() {
         return res.status(403).send({ message: "Forbidden Access" });
       }
     };
+
+// Admin verify middleware
+const AdminVerify = async (req, res, next) => {
+  try {
+    const email = req.decoded?.email;
+
+    if (!email) {
+      return res.status(401).send({ message: "Unauthorized Access" });
+    }
+
+    const user = await usersCollection.findOne(
+      { email },
+      { projection: { role: 1 } }
+    );
+
+    if (!user || user.role !== "admin") {
+      return res.status(403).send({ message: "Forbidden: Admin only" });
+    }
+
+    next();
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ message: "Server error" });
+  }
+};
+
+
     app.post("/rider", TokenVerify, async (req, res) => {
       const email = req.body.email;
       const riderexists = await riderCollection.findOne({ email });
@@ -78,7 +105,7 @@ async function run() {
         res.send(result);
       }
     });
-    app.get("/riders", async (req, res) => {
+    app.get("/riders",TokenVerify, async (req, res) => {
       const { status } = req.query;
 
       let query = {};
@@ -91,7 +118,7 @@ async function run() {
       const result = await riderCollection.find(query).toArray();
       res.send(result);
     });
-    app.patch("/riders/:id", async (req, res) => {
+    app.patch("/riders/:id",TokenVerify, async (req, res) => {
       try {
         const { id } = req.params;
         const { status, email } = req.body;
@@ -112,8 +139,6 @@ async function run() {
           return res.status(404).json({ message: "Rider not found" });
         }
         }
-
-       
         if (result.matchedCount === 0) {
           return res.status(404).json({ message: "Rider not found" });
         }
@@ -124,6 +149,37 @@ async function run() {
         res.status(500).json({ message: "Server Error" });
       }
     });
+
+// GET /users/role?email=user@example.com
+app.get("/users/role",TokenVerify,AdminVerify , async (req, res) => {
+  try {
+    const { email } = req.query;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    const user = await usersCollection.findOne(
+      { email },
+      { projection: { email: 1, role: 1 } }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({
+      email: user.email,
+      role: user.role || "user", // fallback if role not set
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+
+
     app.post("/users", TokenVerify, async (req, res) => {
       const email = req.body.email;
       const userexists = await usersCollection.findOne({ email });
@@ -139,7 +195,7 @@ async function run() {
     });
 
 // GET /users/search?email=<partialEmail>
-app.get("/users/search", async (req, res) => {
+app.get("/users/search",TokenVerify, AdminVerify ,async (req, res) => {
   try {
     const { email } = req.query;
     if (!email) return res.status(400).json({ message: "Email query is required" });
@@ -162,7 +218,7 @@ app.get("/users/search", async (req, res) => {
 
 // PATCH /users/:id/role
 // Body: { role: "admin" } → promote, { role: "user" } → demote
-app.patch("/users/:id/role", async (req, res) => {
+app.patch("/users/:id/role", TokenVerify, AdminVerify , async (req, res) => {
   try {
     const { id } = req.params;
     const { role } = req.body;

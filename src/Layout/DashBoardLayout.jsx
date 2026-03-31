@@ -2,8 +2,11 @@ import React from 'react'
 import { Outlet } from 'react-router'
 import { NavLink } from 'react-router'
 import Logo from '../Components/Logo/Logo'
+import useUserRole from '../Hooks/UserRoleCheck'
 
 export const DashBoardLayout = () => {
+   const {role,isRoleLoading}=useUserRole()
+   console.log(role)
     return (
         <div className="drawer lg:drawer-open">
             <input id="dashboard-drawer" type="checkbox" className="drawer-toggle" />
@@ -52,9 +55,16 @@ export const DashBoardLayout = () => {
                     <li><NavLink to="/dashboard">Dashboard</NavLink></li>
                     <li><NavLink to="parcels">My Parcels</NavLink></li>
                     <li><NavLink to="payment-history">Payment History</NavLink></li>
-                    <li><NavLink to="active-riders">Active Riders</NavLink></li>
-                    <li><NavLink to="pending-riders">Pending Riders</NavLink></li>
-                    <li><NavLink to="make-admin">Make Admin</NavLink></li>
+                    {
+                       !isRoleLoading && role === "admin" ? (
+                            <>
+                                <li><NavLink to="active-riders">Active Riders</NavLink></li>
+                                <li><NavLink to="pending-riders">Pending Riders</NavLink></li>
+                                <li><NavLink to="make-admin">Make Admin</NavLink></li>
+                               
+                            </>
+                        ):null
+                    }
                 </ul>
             </div>
         </div >

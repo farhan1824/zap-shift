@@ -2,7 +2,6 @@ import React, { use } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { AuthCotext } from "../../Context/Authentication/AuthCotext";
 import Loading from "../Loading/Loading";
-// import { AuthCotext } from "../Context/Authentication/AuthCotext";
 
 export const PrivateRoutes = ({ children }) => {
   const { user, loading } = use(AuthCotext);
