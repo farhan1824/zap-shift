@@ -105,6 +105,21 @@ const AdminVerify = async (req, res, next) => {
         res.send(result);
       }
     });
+// active riders
+    app.get("/rider/active",TokenVerify, AdminVerify,async (req, res) => {
+      const { status } = req.query;
+
+      let query = {status:"active"};
+
+      // ✅ If status is provided → filter
+      if (status) {
+        query.status = status;
+      }
+
+      const result = await riderCollection.find(query).toArray();
+      res.send(result);
+    });
+
     app.get("/riders",TokenVerify, async (req, res) => {
       const { status } = req.query;
 
@@ -312,9 +327,54 @@ app.get("/parcels/assignable", TokenVerify, AdminVerify, async (req, res) => {
       }
     });
 
+// assign rider to parcel if the parcel is in the same district then only one rider will be assigned but if the sender and receiver are in different district then two riders will be assigned one for sender and another for receiver
+// PATCH /parcels/:id/assign
+// Body: { riderEmail: string }
+app.patch("/parcels/:id/assign", TokenVerify, AdminVerify, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { riderEmail } = req.body; // Expecting an array
+    console.log(riderEmail);
 
+    if (!riderEmail || !Array.isArray(riderEmail) || riderEmail.length === 0) {
+      return res.status(400).json({ message: "Rider email(s) are required" });
+    }
 
+    // Find the parcel first
+    const parcel = await parcelsCollection.findOne({ _id: new ObjectId(id) });
+    if (!parcel) {
+      return res.status(404).json({ message: "Parcel not found" });
+    }
 
+    // Determine rider assignments as an object
+    let assignedRiders = {};
+
+    if (riderEmail.length === 1) {
+      // Only one rider → assign to both sender and receiver
+      assignedRiders = {
+        receiverRider: riderEmail[0],
+        senderRider: riderEmail[0],
+      };
+    } else if (riderEmail.length >= 2) {
+      // Two riders → first is receiver, second is sender
+      assignedRiders = {
+        receiverRider: riderEmail[0],
+        senderRider: riderEmail[1],
+      };
+    }
+
+    // Update the parcel
+    const result = await parcelsCollection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { assignedRiders } }
+    );
+
+    return res.json({ message: "Rider(s) assigned successfully", result });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error", error });
+  }
+});
     app.delete("/parcels/:id", TokenVerify, async (req, res) => {
       try {
         const id = req.params.id;
