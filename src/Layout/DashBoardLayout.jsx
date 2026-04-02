@@ -5,7 +5,7 @@ import useUserRole from '../Hooks/UserRoleCheck'
 
 // ICONS
 import { HiOutlineHome, HiOutlineCube, HiOutlineClock } from "react-icons/hi"
-import { FaUserShield, FaUserCheck, FaUserClock, FaUserCog } from "react-icons/fa"
+import { FaUserShield, FaUserCheck, FaUserClock, FaUserCog, FaMotorcycle } from "react-icons/fa"
 
 export const DashBoardLayout = () => {
     const { role, isRoleLoading } = useUserRole()
@@ -142,6 +142,17 @@ export const DashBoardLayout = () => {
                                     >
                                         <FaUserShield className="text-lg" />
                                         Make Admin
+                                    </NavLink>
+                                </li>
+                                <li>
+                                    <NavLink
+                                        to="rider-details"
+                                        className={({ isActive }) =>
+                                            `flex items-center gap-3 ${isActive ? "text-[#CAEB66] font-semibold" : ""}`
+                                        }
+                                    >
+                                        <FaMotorcycle className="text-lg" />
+                                        Rider Details
                                     </NavLink>
                                 </li>
                             </>

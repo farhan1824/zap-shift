@@ -66,30 +66,30 @@ async function run() {
       }
     };
 
-// Admin verify middleware
-const AdminVerify = async (req, res, next) => {
-  try {
-    const email = req.decoded?.email;
+    // Admin verify middleware
+    const AdminVerify = async (req, res, next) => {
+      try {
+        const email = req.decoded?.email;
 
-    if (!email) {
-      return res.status(401).send({ message: "Unauthorized Access" });
-    }
+        if (!email) {
+          return res.status(401).send({ message: "Unauthorized Access" });
+        }
 
-    const user = await usersCollection.findOne(
-      { email },
-      { projection: { role: 1 } }
-    );
+        const user = await usersCollection.findOne(
+          { email },
+          { projection: { role: 1 } }
+        );
 
-    if (!user || user.role !== "admin") {
-      return res.status(403).send({ message: "Forbidden: Admin only" });
-    }
+        if (!user || user.role !== "admin") {
+          return res.status(403).send({ message: "Forbidden: Admin only" });
+        }
 
-    next();
-  } catch (error) {
-    console.error(error);
-    res.status(500).send({ message: "Server error" });
-  }
-};
+        next();
+      } catch (error) {
+        console.error(error);
+        res.status(500).send({ message: "Server error" });
+      }
+    };
 
 
     app.post("/rider", TokenVerify, async (req, res) => {
@@ -105,11 +105,47 @@ const AdminVerify = async (req, res, next) => {
         res.send(result);
       }
     });
-// active riders
-    app.get("/rider/active",TokenVerify, AdminVerify,async (req, res) => {
+
+// rider details for parcels admin can only view this information
+// Get rider details with assigned parcels
+// Get all riders with their assigned parcels
+app.get("/riders/parcels", TokenVerify, AdminVerify, async (req, res) => {
+  try {
+    const riders = await riderCollection.find({}).toArray();
+
+    // For each rider, find assigned parcels
+    const ridersWithParcels = await Promise.all(
+      riders.map(async (rider) => {
+        const parcels = await parcelsCollection
+          .find({
+            delivery_status: "assigned",
+            $or: [
+              { "assignedRiders.senderRider": rider.email },
+              { "assignedRiders.receiverRider": rider.email },
+            ],
+          })
+          .toArray();
+
+        return {
+          name: rider.name,
+          email: rider.email,
+          region: rider.region,
+          parcels: parcels.map((p) => p.tracking_id),
+        };
+      })
+    );
+
+    res.json(ridersWithParcels);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error", error });
+  }
+});
+    // active riders
+    app.get("/rider/active", TokenVerify, AdminVerify, async (req, res) => {
       const { status } = req.query;
 
-      let query = {status:"active"};
+      let query = { status: "active" };
 
       // ✅ If status is provided → filter
       if (status) {
@@ -120,7 +156,7 @@ const AdminVerify = async (req, res, next) => {
       res.send(result);
     });
 
-    app.get("/riders",TokenVerify, async (req, res) => {
+    app.get("/riders", TokenVerify, async (req, res) => {
       const { status } = req.query;
 
       let query = {};
@@ -133,7 +169,7 @@ const AdminVerify = async (req, res, next) => {
       const result = await riderCollection.find(query).toArray();
       res.send(result);
     });
-    app.patch("/riders/:id",TokenVerify, async (req, res) => {
+    app.patch("/riders/:id", TokenVerify, async (req, res) => {
       try {
         const { id } = req.params;
         const { status, email } = req.body;
@@ -146,13 +182,13 @@ const AdminVerify = async (req, res, next) => {
           { $set: { status } }
         );
         if (status === "active") {
-             const RoleUpdate = await usersCollection.updateOne(
-          { email: email },
-          { $set: { role: "rider" } }
-        );
-       if (RoleUpdate.matchedCount === 0) {
-          return res.status(404).json({ message: "Rider not found" });
-        }
+          const RoleUpdate = await usersCollection.updateOne(
+            { email: email },
+            { $set: { role: "rider" } }
+          );
+          if (RoleUpdate.matchedCount === 0) {
+            return res.status(404).json({ message: "Rider not found" });
+          }
         }
         if (result.matchedCount === 0) {
           return res.status(404).json({ message: "Rider not found" });
@@ -165,33 +201,33 @@ const AdminVerify = async (req, res, next) => {
       }
     });
 
-// GET /users/role?email=user@example.com
-app.get("/users/role",TokenVerify,AdminVerify , async (req, res) => {
-  try {
-    const { email } = req.query;
+    // GET /users/role?email=user@example.com
+    app.get("/users/role", TokenVerify, AdminVerify, async (req, res) => {
+      try {
+        const { email } = req.query;
 
-    if (!email) {
-      return res.status(400).json({ message: "Email is required" });
-    }
+        if (!email) {
+          return res.status(400).json({ message: "Email is required" });
+        }
 
-    const user = await usersCollection.findOne(
-      { email },
-      { projection: { email: 1, role: 1 } }
-    );
+        const user = await usersCollection.findOne(
+          { email },
+          { projection: { email: 1, role: 1 } }
+        );
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
+        if (!user) {
+          return res.status(404).json({ message: "User not found" });
+        }
 
-    res.json({
-      email: user.email,
-      role: user.role || "user", // fallback if role not set
+        res.json({
+          email: user.email,
+          role: user.role || "user", // fallback if role not set
+        });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error" });
+      }
     });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error" });
-  }
-});
 
 
 
@@ -209,63 +245,63 @@ app.get("/users/role",TokenVerify,AdminVerify , async (req, res) => {
       }
     });
 
-// GET /users/search?email=<partialEmail>
-app.get("/users/search",TokenVerify, AdminVerify ,async (req, res) => {
-  try {
-    const { email } = req.query;
-    if (!email) return res.status(400).json({ message: "Email query is required" });
+    // GET /users/search?email=<partialEmail>
+    app.get("/users/search", TokenVerify, AdminVerify, async (req, res) => {
+      try {
+        const { email } = req.query;
+        if (!email) return res.status(400).json({ message: "Email query is required" });
 
-    // Use case-insensitive regex for partial match
-    const regex = new RegExp(email, "i"); 
-    const users = await usersCollection
-      .find({ email: { $regex: regex } })
-      .project({ email: 1, created_at: 1, role: 1 }) // only return needed fields
-      .toArray();
+        // Use case-insensitive regex for partial match
+        const regex = new RegExp(email, "i");
+        const users = await usersCollection
+          .find({ email: { $regex: regex } })
+          .project({ email: 1, created_at: 1, role: 1 }) // only return needed fields
+          .toArray();
 
-    if (users.length === 0) return res.status(404).json({ message: "No users found" });
+        if (users.length === 0) return res.status(404).json({ message: "No users found" });
 
-    res.json(users);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
-  }
-});
-
-// PATCH /users/:id/role
-// Body: { role: "admin" } → promote, { role: "user" } → demote
-app.patch("/users/:id/role", TokenVerify, AdminVerify , async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { role } = req.body;
-
-    if (!role) {
-      return res.status(400).json({ message: "Role is required" });
-    }
-
-    // You can restrict to valid roles only if needed
-    const validRoles = ["user", "admin", "rider"];
-    if (!validRoles.includes(role)) {
-      return res.status(400).json({ message: `Role must be one of: ${validRoles.join(", ")}` });
-    }
-
-    const result = await usersCollection.updateOne(
-      { _id: new ObjectId(id) },
-      { $set: { role } }
-    );
-
-    if (result.matchedCount === 0) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    res.json({
-      message: `User role updated to "${role}"`,
-      userId: id,
+        res.json(users);
+      } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Server error" });
+      }
     });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
-  }
-});
+
+    // PATCH /users/:id/role
+    // Body: { role: "admin" } → promote, { role: "user" } → demote
+    app.patch("/users/:id/role", TokenVerify, AdminVerify, async (req, res) => {
+      try {
+        const { id } = req.params;
+        const { role } = req.body;
+
+        if (!role) {
+          return res.status(400).json({ message: "Role is required" });
+        }
+
+        // You can restrict to valid roles only if needed
+        const validRoles = ["user", "admin", "rider"];
+        if (!validRoles.includes(role)) {
+          return res.status(400).json({ message: `Role must be one of: ${validRoles.join(", ")}` });
+        }
+
+        const result = await usersCollection.updateOne(
+          { _id: new ObjectId(id) },
+          { $set: { role } }
+        );
+
+        if (result.matchedCount === 0) {
+          return res.status(404).json({ message: "User not found" });
+        }
+
+        res.json({
+          message: `User role updated to "${role}"`,
+          userId: id,
+        });
+      } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Server error" });
+      }
+    });
 
     app.post("/parcels", TokenVerify, async (req, res) => {
       try {
@@ -283,24 +319,24 @@ app.patch("/users/:id/role", TokenVerify, AdminVerify , async (req, res) => {
     });
     // .Checking parcel statue whther the parcel is assignable or not to the rider
     // GET /parcels/assignable
-app.get("/parcels/assignable", TokenVerify, AdminVerify, async (req, res) => {
-  try {
-    const query = {
-      payment_status: "paid",
-      delivery_status: "pending",
-    };
+    app.get("/parcels/assignable", TokenVerify, AdminVerify, async (req, res) => {
+      try {
+        const query = {
+          payment_status: "paid",
+          delivery_status: "pending",
+        };
 
-    const parcels = await parcelsCollection
-      .find(query)
-      .sort({ createdAt: -1 })
-      .toArray();
+        const parcels = await parcelsCollection
+          .find(query)
+          .sort({ createdAt: -1 })
+          .toArray();
 
-    res.json(parcels);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error" });
-  }
-});
+        res.json(parcels);
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error" });
+      }
+    });
 
     app.get("/parcels", TokenVerify, async (req, res) => {
       try {
@@ -327,54 +363,54 @@ app.get("/parcels/assignable", TokenVerify, AdminVerify, async (req, res) => {
       }
     });
 
-// assign rider to parcel if the parcel is in the same district then only one rider will be assigned but if the sender and receiver are in different district then two riders will be assigned one for sender and another for receiver
-// PATCH /parcels/:id/assign
-// Body: { riderEmail: string }
-app.patch("/parcels/:id/assign", TokenVerify, AdminVerify, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { riderEmail } = req.body; // Expecting an array
-    console.log(riderEmail);
+    // assign rider to parcel if the parcel is in the same district then only one rider will be assigned but if the sender and receiver are in different district then two riders will be assigned one for sender and another for receiver
+    // PATCH /parcels/:id/assign
+    // Body: { riderEmail: string }
+    app.patch("/parcels/:id/assign", TokenVerify, AdminVerify, async (req, res) => {
+      try {
+        const { id } = req.params;
+        const { riderEmail } = req.body; // Expecting an array
+        console.log(riderEmail);
 
-    if (!riderEmail || !Array.isArray(riderEmail) || riderEmail.length === 0) {
-      return res.status(400).json({ message: "Rider email(s) are required" });
-    }
+        if (!riderEmail || !Array.isArray(riderEmail) || riderEmail.length === 0) {
+          return res.status(400).json({ message: "Rider email(s) are required" });
+        }
 
-    // Find the parcel first
-    const parcel = await parcelsCollection.findOne({ _id: new ObjectId(id) });
-    if (!parcel) {
-      return res.status(404).json({ message: "Parcel not found" });
-    }
+        // Find the parcel first
+        const parcel = await parcelsCollection.findOne({ _id: new ObjectId(id) });
+        if (!parcel) {
+          return res.status(404).json({ message: "Parcel not found" });
+        }
 
-    // Determine rider assignments as an object
-    let assignedRiders = {};
+        // Determine rider assignments as an object
+        let assignedRiders = {};
 
-    if (riderEmail.length === 1) {
-      // Only one rider → assign to both sender and receiver
-      assignedRiders = {
-        receiverRider: riderEmail[0],
-        senderRider: riderEmail[0],
-      };
-    } else if (riderEmail.length >= 2) {
-      // Two riders → first is receiver, second is sender
-      assignedRiders = {
-        receiverRider: riderEmail[0],
-        senderRider: riderEmail[1],
-      };
-    }
+        if (riderEmail.length === 1) {
+          // Only one rider → assign to both sender and receiver
+          assignedRiders = {
+            receiverRider: riderEmail[0],
+            senderRider: riderEmail[0],
+          };
+        } else if (riderEmail.length >= 2) {
+          // Two riders → first is receiver, second is sender
+          assignedRiders = {
+            receiverRider: riderEmail[0],
+            senderRider: riderEmail[1],
+          };
+        }
 
-    // Update the parcel
-    const result = await parcelsCollection.updateOne(
-      { _id: new ObjectId(id) },
-      { $set: { assignedRiders } }
-    );
+        // Update the parcel
+        const result = await parcelsCollection.updateOne(
+          { _id: new ObjectId(id) },
+          { $set: {  assignedRiders: assignedRiders, delivery_status: "assigned"} }
+        );
 
-    return res.json({ message: "Rider(s) assigned successfully", result });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error", error });
-  }
-});
+        return res.json({ message: "Rider(s) assigned successfully", result });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error", error });
+      }
+    });
     app.delete("/parcels/:id", TokenVerify, async (req, res) => {
       try {
         const id = req.params.id;

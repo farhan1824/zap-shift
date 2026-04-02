@@ -21,6 +21,7 @@ import ManageAdmin from "../Layout/MangeAdmin/ManageAdmin";
 import Forbidden from "../Components/Forbidden/Forbidden";
 import { AdminRoutes } from "../Components/Routes/AdminRoutes";
 import AssignRider from "../Layout/Dashboard/AssignRider/AssignRider";
+import RiderDetails from "../Layout/Dashboard/RiderDetails/RiderDetails";
 export const router = createBrowserRouter([
     {
         path: "/",
@@ -119,6 +120,13 @@ export const router = createBrowserRouter([
                 path: "assign-rider",
                 element: <AdminRoutes>
                     <AssignRider></AssignRider>
+                </AdminRoutes>
+                // Component: AssignRider,
+            },
+            {
+                path: "rider-details",
+                element: <AdminRoutes>
+                    <RiderDetails></RiderDetails>
                 </AdminRoutes>
                 // Component: AssignRider,
             },
