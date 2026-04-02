@@ -14,10 +14,8 @@ const ParcelOrder = () => {
     const parcelType = watch("type");
 
     const senderRegion = watch("senderRegion");
-    const senderCity = watch("senderCity");
 
     const receiverRegion = watch("receiverRegion");
-    const receiverCity = watch("receiverCity");
 
     // unique regions
     const regions = [...new Set(centers.map((c) => c.region))];
@@ -133,6 +131,7 @@ const ParcelOrder = () => {
                     delivery_cost: cost.total,
                     created_by: user.email,
                     payment_status: "pending",
+                    delivery_status: "pending",
                     creation_date: new Date().toISOString(),
                 };
                 axios.post("/parcels", parcelData)

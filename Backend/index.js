@@ -266,6 +266,27 @@ app.patch("/users/:id/role", TokenVerify, AdminVerify , async (req, res) => {
         });
       }
     });
+    // .Checking parcel statue whther the parcel is assignable or not to the rider
+    // GET /parcels/assignable
+app.get("/parcels/assignable", TokenVerify, AdminVerify, async (req, res) => {
+  try {
+    const query = {
+      payment_status: "paid",
+      delivery_status: "pending",
+    };
+
+    const parcels = await parcelsCollection
+      .find(query)
+      .sort({ createdAt: -1 })
+      .toArray();
+
+    res.json(parcels);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
     app.get("/parcels", TokenVerify, async (req, res) => {
       try {
         const email = req.query.email;
@@ -290,6 +311,10 @@ app.patch("/users/:id/role", TokenVerify, AdminVerify , async (req, res) => {
         res.status(500).send({ message: "Server error", error });
       }
     });
+
+
+
+
     app.delete("/parcels/:id", TokenVerify, async (req, res) => {
       try {
         const id = req.params.id;

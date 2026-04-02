@@ -1,12 +1,15 @@
 import React from 'react'
-import { Outlet } from 'react-router'
-import { NavLink } from 'react-router'
+import { Outlet, NavLink } from 'react-router'
 import Logo from '../Components/Logo/Logo'
 import useUserRole from '../Hooks/UserRoleCheck'
 
+// ICONS
+import { HiOutlineHome, HiOutlineCube, HiOutlineClock } from "react-icons/hi"
+import { FaUserShield, FaUserCheck, FaUserClock, FaUserCog } from "react-icons/fa"
+
 export const DashBoardLayout = () => {
-   const {role,isRoleLoading}=useUserRole()
-   console.log(role)
+    const { role, isRoleLoading } = useUserRole()
+
     return (
         <div className="drawer lg:drawer-open">
             <input id="dashboard-drawer" type="checkbox" className="drawer-toggle" />
@@ -14,7 +17,7 @@ export const DashBoardLayout = () => {
             {/* MAIN CONTENT */}
             <div className="drawer-content flex flex-col">
 
-                {/* Navbar (mobile only button) */}
+                {/* Navbar */}
                 <div className="navbar bg-base-300 w-full">
                     <div className="flex-none lg:hidden">
                         <label htmlFor="dashboard-drawer" className="btn btn-square btn-ghost">
@@ -34,39 +37,119 @@ export const DashBoardLayout = () => {
                         </label>
                     </div>
 
-                    <div className="flex items-center justify-evenly gap-3">
+                    <div className="flex items-center gap-3">
                         <Logo />
-
                     </div>
                 </div>
 
                 {/* PAGE CONTENT */}
                 <div className="p-6">
-                    <Outlet></Outlet>
+                    <Outlet />
                 </div>
-
             </div>
 
             {/* SIDEBAR */}
             <div className="drawer-side">
                 <label htmlFor="dashboard-drawer" className="drawer-overlay"></label>
 
-                <ul className="menu bg-base-200 min-h-full w-80 p-4">
-                    <li><NavLink to="/dashboard">Dashboard</NavLink></li>
-                    <li><NavLink to="parcels">My Parcels</NavLink></li>
-                    <li><NavLink to="payment-history">Payment History</NavLink></li>
+                <ul className="menu bg-base-200 min-h-full w-80 p-4 space-y-1">
+
+                    {/* USER ROUTES */}
+                    <li>
+                        <NavLink
+                            to="/dashboard"
+                            className={({ isActive }) =>
+                                `flex items-center gap-3 ${isActive ? "text-[#CAEB66] font-semibold" : ""}`
+                            }
+                        >
+                            <HiOutlineHome className="text-xl" />
+                            Dashboard
+                        </NavLink>
+                    </li>
+
+                    <li>
+                        <NavLink
+                            to="parcels"
+                            className={({ isActive }) =>
+                                `flex items-center gap-3 ${isActive ? "text-[#CAEB66] font-semibold" : ""}`
+                            }
+                        >
+                            <HiOutlineCube className="text-xl" />
+                            My Parcels
+                        </NavLink>
+                    </li>
+
+                    <li>
+                        <NavLink
+                            to="payment-history"
+                            className={({ isActive }) =>
+                                `flex items-center gap-3 ${isActive ? "text-[#CAEB66] font-semibold" : ""}`
+                            }
+                        >
+                            <HiOutlineClock className="text-xl" />
+                            Payment History
+                        </NavLink>
+                    </li>
+
+                    {/* ADMIN ROUTES */}
                     {
-                       !isRoleLoading && role === "admin" ? (
+                        !isRoleLoading && role === "admin" && (
                             <>
-                                <li><NavLink to="active-riders">Active Riders</NavLink></li>
-                                <li><NavLink to="pending-riders">Pending Riders</NavLink></li>
-                                <li><NavLink to="make-admin">Make Admin</NavLink></li>
-                               
+                                <div className="divider">Admin Panel</div>
+
+                                <li>
+                                    <NavLink
+                                        to="assign-rider"
+                                        className={({ isActive }) =>
+                                            `flex items-center gap-3 ${isActive ? "text-[#CAEB66] font-semibold" : ""}`
+                                        }
+                                    >
+                                        <FaUserCog className="text-lg" />
+                                        Assign Rider
+                                    </NavLink>
+                                </li>
+
+                                <li>
+                                    <NavLink
+                                        to="active-riders"
+                                        className={({ isActive }) =>
+                                            `flex items-center gap-3 ${isActive ? "text-[#CAEB66] font-semibold" : ""}`
+                                        }
+                                    >
+                                        <FaUserCheck className="text-lg" />
+                                        Active Riders
+                                    </NavLink>
+                                </li>
+
+                                <li>
+                                    <NavLink
+                                        to="pending-riders"
+                                        className={({ isActive }) =>
+                                            `flex items-center gap-3 ${isActive ? "text-[#CAEB66] font-semibold" : ""}`
+                                        }
+                                    >
+                                        <FaUserClock className="text-lg" />
+                                        Pending Riders
+                                    </NavLink>
+                                </li>
+
+                                <li>
+                                    <NavLink
+                                        to="make-admin"
+                                        className={({ isActive }) =>
+                                            `flex items-center gap-3 ${isActive ? "text-[#CAEB66] font-semibold" : ""}`
+                                        }
+                                    >
+                                        <FaUserShield className="text-lg" />
+                                        Make Admin
+                                    </NavLink>
+                                </li>
                             </>
-                        ):null
+                        )
                     }
+
                 </ul>
             </div>
-        </div >
+        </div>
     )
 }

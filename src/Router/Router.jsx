@@ -20,6 +20,7 @@ import { PendingRiders } from "../Layout/Rider/PendingRiders";
 import ManageAdmin from "../Layout/MangeAdmin/ManageAdmin";
 import Forbidden from "../Components/Forbidden/Forbidden";
 import { AdminRoutes } from "../Components/Routes/AdminRoutes";
+import AssignRider from "../Layout/Dashboard/AssignRider/AssignRider";
 export const router = createBrowserRouter([
     {
         path: "/",
@@ -113,6 +114,13 @@ export const router = createBrowserRouter([
             {
                 path: "payment/:ProductId",
                 Component: ProductPayment,
+            },
+            {
+                path: "assign-rider",
+                element: <AdminRoutes>
+                    <AssignRider></AssignRider>
+                </AdminRoutes>
+                // Component: AssignRider,
             },
             {
                 path: "active-riders",
